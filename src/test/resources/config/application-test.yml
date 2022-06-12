@@ -1,0 +1,23 @@
+rest:
+  services:
+    subscribers:
+      url: http://localhost:${wiremock.server.port} #wireMock me local
+
+wiremock:
+  server:
+    port: 4567
+
+#Open-feign client
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 10000
+        readTimeout: 20000
+        loggerLevel: full
+
+logging:
+  level:
+    org.springframework: INFO
+    org.springframework.cache: TRACE
+    team.codemonsters.ddd.cleancodedesignguide: DEBUG

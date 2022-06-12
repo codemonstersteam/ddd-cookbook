@@ -1,0 +1,58 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "url": "/api/v1/subscribers/999"
+      },
+      "response": {
+        "delayDistribution": {
+          "type": "lognormal",
+          "median": 90,
+          "sigma": 0.1
+        },
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "status": "success",
+          "actualTimestamp": 1607449018829,
+          "data": {
+            "createTime": 1600443296227,
+            "subscriberId": "999",
+            "mobileRegionId": "1",
+            "msisdn": "9263336699"
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "/api/v1/subscribers/updates/101"
+      },
+      "response": {
+        "delayDistribution": {
+          "type": "lognormal",
+          "median": 90,
+          "sigma": 0.1
+        },
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "status": "success",
+          "actualTimestamp": 1607449018829,
+          "data": {
+            "dataUpdateId": "101",
+            "subscriberId": "999",
+            "mobileRegionId": "9",
+            "msisdn": "9263336699"
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: clean-code-design-guide
+  profiles:
+    active: local
+  jackson:
+    default-property-inclusion: non_null
+
+logging:
+  level:
+    org.springframework: INFO
+    org.springframework.cache: TRACE
+    team.codemonsters.ddd.cleancodedesignguide: DEBUG
+
+server:
+  port: 8080
+  compression:
+    enabled: true
+    mime-types: application/json
+    min-response-size: 1024
+
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+rest:
+  services:
+    subscribers:
+      url: http://localhost:8080 #wireMock me local
+      updates: /api/v1/subscribers/updates/{dataUpdateId}
+      subscribers: /api/v1/subscribers/{subscriberId}
+
+#Open-feign client
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 10000
+        readTimeout: 20000
+        loggerLevel: basic
