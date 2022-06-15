@@ -7,7 +7,8 @@
 
 ![Alt text](images/qr-link.png)
 
-maxim@codemonsters.team
+email: maxim[at]codemonsters.team\
+https://t.me/max0l0gy
 
 
 «Begin with the concrete, and move to the abstract» © [Scott Wlaschin](https://fsharpforfunandprofit.com/about/)
