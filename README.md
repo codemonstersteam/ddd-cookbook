@@ -10,7 +10,7 @@
 email: maxim[at]codemonsters.team\
 https://t.me/maxology
 
-«Begin with the concrete, and move to the abstract» © [Scott Wlaschin](https://fsharpforfunandprofit.com/about/)
+«I am strong believer in a “begin with the concrete, and move to the abstract” pedagogical approach» © [Scott Wlaschin](https://fsharpforfunandprofit.com/about/)
 
 
 «The problem contains the solution»
