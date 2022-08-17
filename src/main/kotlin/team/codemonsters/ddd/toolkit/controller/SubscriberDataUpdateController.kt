@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
-import team.codemonsters.ddd.toolkit.domain.SubscriberDataUpdateRequest
+import team.codemonsters.ddd.toolkit.domain.subscriberDataUpdate.UnvalidatedDataUpdateRequest
 import team.codemonsters.ddd.toolkit.domain.SubscriberDataUpdateResponseDto
 import team.codemonsters.ddd.toolkit.domain.subscriberDataUpdate.SubscriberDataUpdateResponse
 import team.codemonsters.ddd.toolkit.domain.subscriberDataUpdate.SubscriberDataUpdateService
@@ -26,21 +26,23 @@ class SubscriberDataUpdateController(val _subscriberDataUpdate: SubscriberDataUp
         @RequestBody subscriberDataUpdate: RestRequest<DataUpdateRequestDto>
     ): Mono<RestResponse<SubscriberDataUpdateResponseDto>> =
         _subscriberDataUpdate.dataUpdateProcess(
-            SubscriberDataUpdateRequest(subscriberDataUpdate.data.dataUpdateId)
+            UnvalidatedDataUpdateRequest(subscriberDataUpdate.data.dataUpdateId)
         )
             .map { mapToDto(it) }
-            .map {
-                if (it.isSuccess)
-                    RestResponse.success(it.getOrThrow())
-                else RestResponse.fail(
-                    RestError(
-                        it.exceptionOrNull()!!.message!!,
-                        "spell-error-code"
-                    )
-                )
-            }
+            .map { wrapToRestResponse(it) }
 
     private fun mapToDto(subscriberDataUpdateResult: Result<SubscriberDataUpdateResponse>)
             : Result<SubscriberDataUpdateResponseDto> =
         subscriberDataUpdateResult.map { SubscriberDataUpdateResponseDto.from(it) }
+
+    private fun wrapToRestResponse(resultOfUpdate: Result<SubscriberDataUpdateResponseDto>) =
+        when (resultOfUpdate.isSuccess) {
+            true -> RestResponse.success(resultOfUpdate.getOrThrow())
+            else -> RestResponse.fail(
+                RestError(
+                    errorMessage = resultOfUpdate.exceptionOrNull()!!.message!!,
+                    code = "spell-error-code"
+                )
+            )
+        }
 }

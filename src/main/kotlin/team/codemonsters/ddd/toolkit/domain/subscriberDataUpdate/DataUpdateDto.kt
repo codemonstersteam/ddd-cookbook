@@ -1,4 +1,4 @@
-package team.codemonsters.ddd.toolkit.dto
+package team.codemonsters.ddd.toolkit.domain.subscriberDataUpdate
 
 data class DataUpdateDto(
     val dataUpdateId: String,

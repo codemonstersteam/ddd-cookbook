@@ -1,16 +1,14 @@
 package team.codemonsters.ddd.toolkit.domain
 
-import team.codemonsters.ddd.toolkit.domain.subscriberDataUpdate.DataUpdate
-import team.codemonsters.ddd.toolkit.domain.subscriberDataUpdate.Subscriber
-import team.codemonsters.ddd.toolkit.domain.subscriberDataUpdate.SubscriberUpdateRequest
+import team.codemonsters.ddd.toolkit.domain.subscriberDataUpdate.*
 
 data class SubscriberDataUpdate private constructor(
     private val dataUpdate: DataUpdate,
     private val subscriber: Subscriber
 ) {
 
-    val subscriberId = subscriber.subscriberId
-    val dataUpdateId = dataUpdate.dataUpdateId
+    val subscriberId: SubscriberId = subscriber.subscriberId
+    val dataUpdateId: DataUpdateId = dataUpdate.dataUpdateId
 
     fun prepareUpdateRequest(): Result<SubscriberUpdateRequest> =
         when (isUpdateRequired()) {
@@ -25,9 +23,9 @@ data class SubscriberDataUpdate private constructor(
             : Result<SubscriberUpdateRequest> =
         Result.success(
             SubscriberUpdateRequest(
-                subscriberId,
-                dataUpdate.msisdn,
-                dataUpdate.mobileRegionId,
+                subscriberId.value,
+                dataUpdate.msisdn.value,
+                dataUpdate.mobileRegionId.value,
                 this
             )
         )

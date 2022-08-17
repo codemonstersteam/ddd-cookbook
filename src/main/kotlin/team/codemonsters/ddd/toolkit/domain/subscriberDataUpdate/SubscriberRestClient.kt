@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 import team.codemonsters.ddd.toolkit.dto.SubscriberDto
-import team.codemonsters.ddd.toolkit.dto.DataUpdateDto
 import team.codemonsters.ddd.toolkit.controller.RestResponse
 
 @Component

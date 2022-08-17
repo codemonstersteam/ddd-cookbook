@@ -2,8 +2,8 @@ package team.codemonsters.ddd.toolkit.domain.subscriberDataUpdate
 
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toMono
 import team.codemonsters.ddd.toolkit.domain.SubscriberDataUpdate
-import team.codemonsters.ddd.toolkit.domain.SubscriberDataUpdateRequest
 
 
 @Service
@@ -19,59 +19,48 @@ class SubscriberDataUpdateService(val _subscribersClient: SubscriberGateway) {
      *      который будет покрывать максимум кода
      *      при тестировании можно сфокусироваться на тестировании сильной доменной модели - тестировании бизнес-логики
      */
-    fun dataUpdateProcess(dataUpdateRequest: SubscriberDataUpdateRequest)
-    : Mono<Result<SubscriberDataUpdateResponse>> =
-        getDataUpdate(dataUpdateRequest)
-            .flatMap { getSubscriber(it) }
+    fun dataUpdateProcess(unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest)
+            : Mono<Result<SubscriberDataUpdateResponse>> =
+        Mono.just(ValidatedDataUpdateRequest.emerge(unvalidatedUpdateRequest))
+            .flatMap { findDataWithUpdates(it) }
+            .flatMap { findSubscriberForUpdate(it) }
             .flatMap { prepareSubscriberUpdateRequest(it) }
             .flatMap { updateSubscriber(it) }
 
-
-    private fun getDataUpdate(dataUpdateRequest: SubscriberDataUpdateRequest): Mono<Result<DataUpdate>> =
-        _subscribersClient.findDataUpdate(dataUpdateRequest.dataUpdateId)
-
-    /**
-     * используется паттерн canExecute/Execute
-     */
-    private fun getSubscriber(dataUpdate: Result<DataUpdate>): Mono<Result<SubscriberDataUpdate>> =
-        Mono.just(dataUpdate)
-            .filter { it.isSuccess }
-            .flatMap { getSubscriber(it.getOrThrow()) }
-            .switchIfEmpty(incomingFailInDataUpdate(dataUpdate))
-
-    private fun getSubscriber(dataUpdate: DataUpdate): Mono<Result<SubscriberDataUpdate>> =
-        _subscribersClient.findSubscriber(dataUpdate.subscriberId)
-            .map {
-                SubscriberDataUpdate.emerge(dataUpdate, it)
-            }
-
-    private fun incomingFailInDataUpdate(dataUpdate: Result<DataUpdate>): Mono<Result<SubscriberDataUpdate>> =
-        Mono.just(Result.failure(dataUpdate.exceptionOrNull() ?: RuntimeException("Dumb error")))
-
-    private fun prepareSubscriberUpdateRequest(subscriberDataUpdate: Result<SubscriberDataUpdate>): Mono<Result<SubscriberUpdateRequest>> =
-        Mono.just(subscriberDataUpdate)
-            .filter { it.isSuccess }
-            .flatMap { prepareRequest(it.getOrThrow()) }
-            .switchIfEmpty(incomingFailInSubscriberDataUpdate(subscriberDataUpdate))
-
-    private fun prepareRequest(subscriberDataUpdate: SubscriberDataUpdate): Mono<Result<SubscriberUpdateRequest>> =
-        Mono.just(subscriberDataUpdate.prepareUpdateRequest())
-                                            //^ бизнес-логика в Доменном классе
-
-    private fun incomingFailInSubscriberDataUpdate(subscriberDataUpdate: Result<SubscriberDataUpdate>): Mono<Result<SubscriberUpdateRequest>> =
-        Mono.just(
-            Result.failure(
-                subscriberDataUpdate.exceptionOrNull() ?: RuntimeException("Dumb error failInSubscriberDataUpdate")
-            )
+    fun findDataWithUpdates(validDataUpdateRequest: Result<ValidatedDataUpdateRequest>)
+            : Mono<Result<DataUpdate>> =
+        validDataUpdateRequest.fold(
+            onSuccess = { success -> _subscribersClient.findDataUpdate(success) },
+            //^canExecute/Execute
+            onFailure = { error -> Mono.just(Result.failure(error)) }
+            //^Проброс ошибки далее по пайпу
         )
-    /**
-     * используется паттерн canExecute/Execute
-     */
-    private fun updateSubscriber(updateRequest: Result<SubscriberUpdateRequest>): Mono<Result<SubscriberDataUpdateResponse>> =
-        Mono.just(updateRequest)
-            .filter { it.isSuccess }
-            .flatMap { updateSubscriberByRest(it.getOrThrow()) }
-            .switchIfEmpty(incomingFailInSubscriberUpdateRequest(updateRequest))
+
+    private fun findSubscriberForUpdate(dataUpdate: Result<DataUpdate>)
+            : Mono<Result<SubscriberDataUpdate>> =
+        dataUpdate.fold(
+            onSuccess = { subscriberRequest -> findSubscriberByRest(subscriberRequest) },
+            onFailure = { error -> Mono.just(Result.failure(error)) }
+        )
+
+    private fun findSubscriberByRest(dataUpdate: DataUpdate)
+            : Mono<Result<SubscriberDataUpdate>> =
+        _subscribersClient.findSubscriber(dataUpdate.subscriberId)
+            .map { SubscriberDataUpdate.emerge(dataUpdate, it) }
+
+    private fun prepareSubscriberUpdateRequest(subscriberDataUpdate: Result<SubscriberDataUpdate>)
+            : Mono<Result<SubscriberUpdateRequest>> =
+        subscriberDataUpdate.fold(
+            onSuccess = { it.prepareUpdateRequest() },
+            onFailure = { Result.failure(it) }
+        ).toMono()
+
+    private fun updateSubscriber(updateRequest: Result<SubscriberUpdateRequest>)
+            : Mono<Result<SubscriberDataUpdateResponse>> =
+        updateRequest.fold(
+            onSuccess = { updateSubscriberByRest(it) },
+            onFailure = { Mono.just(Result.failure(it)) }
+        )
 
     private fun updateSubscriberByRest(subscriberDataUpdate: SubscriberUpdateRequest): Mono<Result<SubscriberDataUpdateResponse>> =
         Mono.just(
@@ -83,9 +72,5 @@ class SubscriberDataUpdateService(val _subscribersClient: SubscriberGateway) {
                 )
             )
         )
-
-    private fun incomingFailInSubscriberUpdateRequest(updateRequest: Result<SubscriberUpdateRequest>): Mono<Result<SubscriberDataUpdateResponse>> =
-        Mono.just(Result.failure(updateRequest.exceptionOrNull() ?: RuntimeException("updateSubscriber")))
-
 
 }

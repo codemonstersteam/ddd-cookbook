@@ -8,11 +8,11 @@ import team.codemonsters.ddd.toolkit.controller.RestResponse
 class SubscriberGateway(val _restClient: SubscriberRestClient) {
 
 
-    fun findDataUpdate(dataUpdateId: String): Mono<Result<DataUpdate>> =
-        unwrapCatching { _restClient.findDataUpdate(dataUpdateId) }.map { DataUpdate.emerge(it)}
+    fun findDataUpdate(request: ValidatedDataUpdateRequest): Mono<Result<DataUpdate>> =
+        unwrapCatching { _restClient.findDataUpdate(request.dataUpdateId.value) }.map { DataUpdate.emerge(it)}
 
-    fun findSubscriber(subscriberId: String): Mono<Result<Subscriber>> =
-       unwrapCatching { _restClient.findSubscriber(subscriberId) }.map { Subscriber.emerge(it) }
+    fun findSubscriber(subscriberId: SubscriberId): Mono<Result<Subscriber>> =
+       unwrapCatching { _restClient.findSubscriber(subscriberId.value) }.map { Subscriber.emerge(it) }
 
     fun <R> unwrapCatching(block: () -> Mono<RestResponse<R>>): Mono<Result<R>> =
         try {
