@@ -541,11 +541,10 @@ https://t.me/maxology
 **This is The Way** © The Mandalorian
 
 ---
-Оставте, пожалуйста, отзыв о выступлении!
+Оставте, пожалуйста, отзыв о выступлении!\
+https://t.ly/KGRL
 
-
-![Alt text](images/feedback.jpeg "Feedback")
-
+![Alt text](images/feedback.png "Feedback")
 
 ---
 
