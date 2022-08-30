@@ -261,12 +261,12 @@ https://t.me/maxology
         
      ````
     - [x] TDD - Type Driven Development как защита от багов на уровне компиляции.\
-      Код без примитивов - сам себя тестирует и описывает\
-      ограничения предусмотренные бизнес-логикой.\
-      Код - документация.\
+      Код без примитивов - сам себя тестирует\ 
+      и описывает ограничения предусмотренные бизнес-логикой.\
+      Код есть документация.\
       Появляется Единственная точка входа в процесс валидации.\
       ValueObject pattern - основной кирпичик описания модели - это важно понимать.\
-      Пример SubscriberId:\
+      Пример SubscriberId:
       ````
       data class SubscriberId 
       private constructor(override val value: String) 
@@ -292,8 +292,9 @@ https://t.me/maxology
   
   Исключения как инструмент мешают в восприятии бизнес-процесса,\
   как **непрерывного потока**.\
-  [Railway Oriented Programming - error handling in functional languages](https://fsharpforfunandprofit.com/rop/)
-   
+  [Railway Oriented Programming - error handling in functional languages](https://fsharpforfunandprofit.com/rop/) как паттерн при работе с ошибками в бизнес-логике.
+  
+  Процесс обновления данных можно представить как\
   Последовательность классов:
    ````
       > Непроверенный Запрос на Обновление 
