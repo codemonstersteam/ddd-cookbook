@@ -9,8 +9,10 @@ data class Msisdn private constructor(override val value: String): ValueObject<S
                 else -> Result.failure(IllegalArgumentException("Msisdn consists of 10 numbers"))
             }
 
+        private val isStringConsist10Digits = "^\\d{10}\$".toRegex()
+
         private fun isStringConsists10Digits(value: String) =
-            10 == value.length
-                    && value.lineSequence().all { it in "0".."9" }
+            isStringConsist10Digits.matches(value)
+
     }
 }

@@ -1,5 +1,6 @@
 package team.codemonsters.ddd.toolkit.domain.common
 
+import reactor.util.function.Tuple3
 import reactor.util.function.Tuple4
 import reactor.util.function.Tuples
 
@@ -39,3 +40,10 @@ fun <A : Any, B : Any, C : Any, D : Any> Result.Companion.zip(a: Result<A>, b: R
         Result.success(Tuples.of(a.getOrThrow(), b.getOrThrow(), c.getOrThrow(), d.getOrThrow()))
     else
         Result.failure(sequenceOf(a, b, c, d).first { it.isFailure }.exceptionOrNull()!!)
+
+fun <A : Any, B : Any, C : Any> Result.Companion.zip(a: Result<A>, b: Result<B>, c: Result<C>)
+        : Result<Tuple3<A, B, C>> =
+    if (sequenceOf(a, b, c).none { it.isFailure })
+        Result.success(Tuples.of(a.getOrThrow(), b.getOrThrow(), c.getOrThrow()))
+    else
+        Result.failure(sequenceOf(a, b, c).first { it.isFailure }.exceptionOrNull()!!)

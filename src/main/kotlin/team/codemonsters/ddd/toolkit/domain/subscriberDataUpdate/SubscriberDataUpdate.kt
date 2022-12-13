@@ -39,14 +39,7 @@ data class SubscriberDataUpdate private constructor(
             subscriberResult: Result<Subscriber>
         ): Result<SubscriberDataUpdate> =
             subscriberResult.map {
-                SubscriberDataUpdate(
-                    dataUpdate,
-                    Subscriber(
-                        it.subscriberId,
-                        it.msisdn,
-                        it.mobileRegionId
-                    )
-                )
+                SubscriberDataUpdate(dataUpdate, it)
             }
     }
 

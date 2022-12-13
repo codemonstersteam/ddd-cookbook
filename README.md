@@ -7,7 +7,7 @@
 
 ![Alt text](images/qr-link.png)
 
-email: maxim[at]codemonsters.team\
+email: maxim[ at ]codemonsters.team\
 https://t.me/maxology
 
 «I am strong believer in a “begin with the concrete, and move to the abstract” pedagogical approach» © [Scott Wlaschin](https://fsharpforfunandprofit.com/about/)
@@ -520,7 +520,8 @@ https://t.me/maxology
 - Опиши в функциональном стиле бизнес-процесс с доменными классами
 - Реализуй в функциональном стиле всегда валидную Богатую Доменную Модель без примитивов
 - Покрой юнит-тестами бизнес-логику, которая содержится в Доменной Модели
-- Запусти Доменную Модель по тоннелю «бизнес-процесс» без исключений, на шлюзах поможет two track type Result<Data, Error> и canExecute/execute.
+- Запусти Доменную Модель по тоннелю «бизнес-процесс» без исключений, 
+  на шлюзах поможет two track type Result<Data, Error> и canExecute/execute.
 
 По рецепту возможно получить в качестве результата:
 - Простую, строгую структуру приложения - хороший дизайн кода в функциональным стиле

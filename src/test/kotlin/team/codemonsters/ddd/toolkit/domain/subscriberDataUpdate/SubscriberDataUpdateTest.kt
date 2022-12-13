@@ -26,7 +26,7 @@ internal class SubscriberDataUpdateTest {
             Result.success(foundDataUpdateDto)
         ).getOrThrow()
         val subscriberResult = Subscriber.emerge(
-            Result.success(foundSubscriberDto)
+            foundSubscriberDto
         )
         //act
         val sut = SubscriberDataUpdate.emerge(dataUpdate, subscriberResult)
@@ -69,12 +69,10 @@ internal class SubscriberDataUpdateTest {
         )
         val dataUpdate = DataUpdate.emerge(Result.success(dataUpdateDto)).getOrThrow()
         val subscriberResult = Subscriber.emerge(
-            Result.success(
-                SubscriberDto(
-                    subscriberId = "808",
-                    msisdn = "8888888888",
-                    mobileRegionId = "8"
-                )
+            SubscriberDto(
+                subscriberId = "808",
+                msisdn = "8888888888",
+                mobileRegionId = "8"
             )
         )
         //act
