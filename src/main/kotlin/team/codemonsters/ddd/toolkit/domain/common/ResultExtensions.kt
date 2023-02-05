@@ -4,6 +4,13 @@ import reactor.util.function.Tuple3
 import reactor.util.function.Tuple4
 import reactor.util.function.Tuples
 
+inline fun <R, T> Result<T>.flatMap(transform: (value: T) -> Result<R>): Result<R> {
+    return when {
+        isSuccess -> transform(this.getOrNull()!! as T)
+        else -> Result.failure(this.exceptionOrNull()!!)
+    }
+}
+
 inline fun <T> Result<T>.ensure(
     predicate: (value: T) -> Boolean,
     errorMessage: String

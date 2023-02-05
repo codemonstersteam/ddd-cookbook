@@ -23,7 +23,7 @@ internal class SubscriberDataUpdateTest {
         )
 
         val dataUpdate = DataUpdate.emerge(
-            Result.success(foundDataUpdateDto)
+            foundDataUpdateDto
         ).getOrThrow()
         val subscriberResult = Subscriber.emerge(
             foundSubscriberDto
@@ -49,7 +49,7 @@ internal class SubscriberDataUpdateTest {
             msisdn = "3338887770",
             mobileRegionId = "9"
         )
-        val dataUpdate = DataUpdate.emerge(Result.success(dataUpdateDto)).getOrThrow()
+        val dataUpdate = DataUpdate.emerge(dataUpdateDto).getOrThrow()
         val subscriberResult = Result.failure<Subscriber>(RuntimeException("Subscriber not found"))
         //act
         val sut = SubscriberDataUpdate.emerge(dataUpdate, subscriberResult)
@@ -67,7 +67,7 @@ internal class SubscriberDataUpdateTest {
             msisdn = "8888888888",
             mobileRegionId = "8"
         )
-        val dataUpdate = DataUpdate.emerge(Result.success(dataUpdateDto)).getOrThrow()
+        val dataUpdate = DataUpdate.emerge(dataUpdateDto).getOrThrow()
         val subscriberResult = Subscriber.emerge(
             SubscriberDto(
                 subscriberId = "808",

@@ -1,7 +1,8 @@
 package team.codemonsters.ddd.toolkit.domain.subscriberDataUpdate
 
 
-data class DataUpdateId private constructor(override val value: String) : ValueObject<String> {
+data class DataUpdateId
+private constructor(override val value: String) : ValueObject<String> {
     companion object {
         fun emerge(dataUpdateId: String): Result<DataUpdateId> =
             when (isStringWith9Digits(dataUpdateId)) {
@@ -9,8 +10,9 @@ data class DataUpdateId private constructor(override val value: String) : ValueO
                 else -> Result.failure(IllegalArgumentException("Data update Id consists of numbers maximum length 9"))
             }
 
+        private val isStringConsist9Digits = "^\\d{1,9}\$".toRegex()
+
         private fun isStringWith9Digits(value: String) =
-            value.length < 10
-                    && value.lineSequence().all { it in "0".."9" }
+            isStringConsist9Digits.matches(value)
     }
 }

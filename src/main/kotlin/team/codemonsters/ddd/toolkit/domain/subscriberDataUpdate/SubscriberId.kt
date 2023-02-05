@@ -6,13 +6,14 @@ private constructor(
     companion object {
         fun emerge(subscriberId: String)
                 : Result<SubscriberId> =
-            when (isStringConsists9Digits(subscriberId)) {
+            when (isStringConsists6Digits(subscriberId)) {
                 true -> Result.success(SubscriberId(subscriberId))
-                else -> Result.failure(IllegalArgumentException("Subscriber Id consists of numbers maximum length 9"))
+                else -> Result.failure(IllegalArgumentException("Subscriber Id consists of numbers maximum length 6"))
             }
 
-        private val isStringConsist9Digits = "^\\d{1,6}\$".toRegex()
-        private fun isStringConsists9Digits(value: String) =
-            isStringConsist9Digits.matches(value)
+        private val isStringConsist6Digits = "^\\d{1,6}\$".toRegex()
+
+        private fun isStringConsists6Digits(value: String) =
+            isStringConsist6Digits.matches(value)
     }
 }

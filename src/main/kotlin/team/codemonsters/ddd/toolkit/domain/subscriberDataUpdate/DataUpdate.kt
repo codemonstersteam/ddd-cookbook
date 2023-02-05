@@ -10,15 +10,11 @@ data class DataUpdate private constructor(
     val mobileRegionId: MobileRegionId
 ) {
     companion object {
-        fun emerge(dataUpdateResult: Result<DataUpdateDto>)
+        fun emerge(dataUpdateResult: DataUpdateDto)
                 : Result<DataUpdate> =
-            dataUpdateResult.fold(
-                onFailure = { Result.failure(it) },
-                onSuccess = {
-                    wrapPrimitivesToValues(it)
-                        .map { tuple4 -> tuple4ToDataUpdate(tuple4) }
-                }
-            )
+            wrapPrimitivesToValues(dataUpdateResult)
+                .map { tuple4 -> tuple4ToDataUpdate(tuple4) }
+
 
         private fun wrapPrimitivesToValues(it: DataUpdateDto)
                 : Result<Tuple4<DataUpdateId, SubscriberId, Msisdn, MobileRegionId>> =
@@ -28,6 +24,7 @@ data class DataUpdate private constructor(
                 Msisdn.emerge(it.msisdn),
                 MobileRegionId.emerge(it.mobileRegionId)
             )
+
         private fun tuple4ToDataUpdate(tuple4: Tuple4<DataUpdateId, SubscriberId, Msisdn, MobileRegionId>) =
             DataUpdate(
                 dataUpdateId = tuple4.t1,

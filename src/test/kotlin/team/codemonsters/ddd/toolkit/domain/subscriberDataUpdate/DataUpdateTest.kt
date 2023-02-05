@@ -13,7 +13,7 @@ internal class DataUpdateTest {
             msisdn = "8263336688",
             mobileRegionId = "8"
         )
-        val sut = DataUpdate.emerge(Result.success(updateDto))
+        val sut = DataUpdate.emerge(updateDto)
         assertThat(sut.isSuccess).isTrue
         assertThat(sut.getOrThrow().dataUpdateId.value).isEqualTo("101")
         assertThat(sut.getOrThrow().subscriberId.value).isEqualTo("777")

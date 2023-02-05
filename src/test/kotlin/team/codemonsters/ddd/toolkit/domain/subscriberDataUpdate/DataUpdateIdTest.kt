@@ -14,6 +14,13 @@ internal class DataUpdateIdTest {
     }
 
     @Test
+    fun successWith9Digits() {
+        val sut = DataUpdateId.emerge("123456789")
+        assertThat(sut.isSuccess).isTrue
+        assertThat(sut.getOrThrow().value).isEqualTo("123456789")
+    }
+
+    @Test
     fun failWithMoreThen9Digits() {
         val sut = DataUpdateId.emerge("1234567890")
         Assertions.assertThat(sut.isFailure).isTrue
