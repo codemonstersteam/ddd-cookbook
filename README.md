@@ -7,7 +7,7 @@
 
 ![Alt text](images/qr-link.png)
 
-email: maxim[ at ]codemonsters.team\
+email: maxim[at]codemonsters.team\
 https://t.me/maxology
 
 «I am strong believer in a “begin with the concrete, and move to the abstract” pedagogical approach» © [Scott Wlaschin](https://fsharpforfunandprofit.com/about/)
@@ -158,7 +158,7 @@ https://t.me/maxology
   - [x] Изолируем доменную модель от интеграций с внешними системами\
     [Onion Architecture](http://jeffreypalermo.com/blog/the-onion-architecture-part-1/) \
     Уровень сервисов используем как простой поток\
-    А простые юнит-тесты без заглушек покрывают всю бизнес-логику\
+    Помогает в тестировании\
     ![Alt text](images/DomainModel.jpg)
   
     Постановка:
@@ -192,9 +192,8 @@ https://t.me/maxology
 
       ````
   - [x] **Реализуй в функциональном стиле всегда валидную Богатую Доменную Модель**\
-    Без примитивов в сердце доменных классов (типов). 
-    Последовательность классов, пронизывающую процесс,\
-    можно описать так:
+    Для описания Доменных классов в функциональном стиле помогает\
+    описать бизнес-процесс в цепочке классов:
 
     - Постановка:
     ````
