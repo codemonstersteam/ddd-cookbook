@@ -1,0 +1,30 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "url": "/api/v1/subscribers/updates/10111"
+      },
+      "response": {
+        "delayDistribution": {
+          "type": "lognormal",
+          "median": 90,
+          "sigma": 0.1
+        },
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "status": "success",
+          "actualTimestamp": 1607449018829,
+          "data": {
+            "subscriberId": "777",
+            "mobileRegionId": "8",
+            "msisdn": "8263336688"
+          }
+        }
+      }
+    }
+  ]
+}

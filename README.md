@@ -65,10 +65,12 @@ https://t.me/maxology
     ````
      0. Снять с себя ответственность и кодить по постановке
      1. В таблице <обновление_данных> взять все строки со статусом need_to_update
-     2. В таблице абонента взять данные по абоненту по идентификатору <обновление_данных>.subscriber_id, если таких данных нет, пометить ошибкой  
+     2. В таблице абонента взять данные по абоненту по идентификатору <обновление_данных>.subscriber_id,
+        если таких данных нет, пометить ошибкой
      3. Сверить строки как то так.
      4. Если данные отличаются см. пункт 5
-     5. Отдельная страница в конфлюенс на два скрола со сложной логикой обновления данных, сиквенс диаграммой и т.д.
+     5. Отдельная страница в конфлюенс на два скрола со сложной логикой обновления данных, 
+        сиквенс диаграммой и т.д.
     ````
   - [x] Забудь Table-Driven Design (Database Oriented мышление) - используй только Доменные объекты при обсуждении задачи. Не думай о низкоуровневой реализации.  
   - [x] Используй в коде Сильную Доменную модель - вся логика описана в доменных объектах, не в сервисах:
@@ -168,36 +170,25 @@ https://t.me/maxology
       ````
     Пример сервиса с Сильной Доменной Моделью:
       ````
-         @Service
-         class SubscriberDataUpdateService(
-                    val _subscribersClient: SubscriberGateway
-         ) {
-           
-           fun dataUpdateProcess(
-                   dataUpdateRequest: SubscriberDataUpdateRequest
-           ): Mono<Result<SubscriberDataUpdateResponse>> =
-              getDataUpdate(dataUpdateRequest)                  
-                .flatMap { getSubscriber(it) }                  
-                .flatMap { prepareSubscriberUpdateRequest(it) } 
-                .flatMap { updateSubscriber(it) }               
+       @Service
+       ...
+       fun dataUpdateProcess(unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest)
+            : Mono<Result<SubscriberDataUpdateResponse>> =
+        Mono.just(ValidatedDataUpdateRequest.emerge(unvalidatedUpdateRequest))
+            .flatMap { findDataWithUpdates(it) }
+            .flatMap { findSubscriberForUpdate(it) }
+            .flatMap { prepareSubscriberUpdateRequest(it) }
+            .flatMap { updateSubscriber(it) }          
            ...
            ...
 
-           private fun prepareSubscriberUpdateRequest(
-                      subscriberDataUpdate: Result<SubscriberDataUpdate>
-           ) : Mono<Result<SubscriberUpdateRequest>> =
-             Mono.just(subscriberDataUpdate)
-               .filter { it.isSuccess }
-               .flatMap { prepareRequest(it.getOrThrow()) }
-                           //^ подготовка запроса на обновление абонента
-               .switchIfEmpty(incomingFailInSubscriberDataUpdate(subscriberDataUpdate))
-            
-            private fun prepareRequest(
-                        subscriberDataUpdate: SubscriberDataUpdate)
+        private fun prepareSubscriberUpdateRequest(subscriberDataUpdate: Result<SubscriberDataUpdate>)
             : Mono<Result<SubscriberUpdateRequest>> =
-              Mono.just(subscriberDataUpdate.prepareUpdateRequest())
-                                                 //^ бизнес-логика в Доменном классе
-                      
+        subscriberDataUpdate.fold(
+            onSuccess = { it.prepareUpdateRequest() },
+                          //^ бизнес-логика в Доменном классе
+            onFailure = { Result.failure(it) }
+        ).toMono()
 
       ````
   - [x] **Реализуй в функциональном стиле всегда валидную Богатую Доменную Модель**\
@@ -211,14 +202,14 @@ https://t.me/maxology
       | сформировать запрос на обновление абонента
       | отправить запрос обновления данных абонента
     ````
-    - Последовательность классов:
+    - Последовательность алгебраических типов:
       
     ````
-      > Непроверенный Запрос на Обновление 
-      > Проверенный Запрос На Обновление 
-      > Запрос Абонента В Системе 
-      > Запрос На Обновление Абонента 
-      > Результат Обновления Абонента
+      |> Непроверенный Запрос на Обновление | UnvalidatedDataUpdateRequest
+      |> Проверенный Запрос На Обновление   | ValidatedDataUpdateRequest
+      |> Запрос Абонента В Системе          | SubscriberDataUpdate
+      |> Запрос На Обновление Абонента      | SubscriberUpdateRequest
+      |> Результат Обновления Абонента      | SubscriberDataUpdateResponse
     ````
       
      Пример плохого возможно Невалидного Доменного класса:
@@ -233,15 +224,16 @@ https://t.me/maxology
                    subscriber.mobileRegionId != dataUpdate.mobileRegionId 
         }
      ````
-     Всегда валидная Доменная модель:
+     Всегда валидная Доменная модель возникает только благодаря фабричным методам,\
+     или не возникает вовсе:
      ````   
         data class SubscriberDataUpdate private constructor(
              private val dataUpdate: DataUpdate,
              private val subscriber: Subscriber
          ) {
        
-           val subscriberId = subscriber.subscriberId
-           val dataUpdateId = dataUpdate.dataUpdateId
+           val subscriberId: SubscriberId = subscriber.subscriberId
+           val dataUpdateId: DataUpdateId = dataUpdate.dataUpdateId
        
            fun prepareUpdateRequest()
            : Result<SubscriberUpdateRequest> 
@@ -269,14 +261,41 @@ https://t.me/maxology
        }
         
      ````
+    - [x] TDD - Type Driven Development как защита от багов на уровне компиляции.\
+      Код без примитивов - сам себя тестирует\ 
+      и описывает ограничения предусмотренные бизнес-логикой.\
+      Код есть документация.\
+      Появляется Единственная точка входа в процесс валидации.\
+      ValueObject pattern - основной кирпичик описания модели - это важно понимать.\
+      Пример SubscriberId:
+      ````
+      data class SubscriberId 
+      private constructor(override val value: String) 
+      : ValueObject<String> {
+        companion object {
+         fun emerge(subscriberId: String)
+         : Result<SubscriberId> =
+           when (isStringConsists9Digits(subscriberId)) {
+              true -> Result.success(SubscriberId(subscriberId))
+              else -> Result.failure(IllegalArgumentException("Subscriber Id consists of numbers maximum length 9"))
+           }
+
+           private fun isStringConsists9Digits(value: String) =
+             value.trim().isNotEmpty()
+                    && value.length < 10
+                    && value.lineSequence().all { it in "0".."9" }
+           }
+      }
+      ````
 
 ---     
 - **Не используем исключения при работе с ошибками в бизнес-процессе в качестве control flow**
   
   Исключения как инструмент мешают в восприятии бизнес-процесса,\
   как **непрерывного потока**.\
-  [Railway Oriented Programming - error handling in functional languages](https://fsharpforfunandprofit.com/rop/)
-   
+  [Railway Oriented Programming - error handling in functional languages](https://fsharpforfunandprofit.com/rop/) как паттерн при работе с ошибками в бизнес-логике.
+  
+  Процесс обновления данных можно представить как\
   Последовательность классов:
    ````
       > Непроверенный Запрос на Обновление 
@@ -286,44 +305,39 @@ https://t.me/maxology
       > Результат Обновления Абонента
    ````
     ![Alt text](images/ROP.jpg "R.O.P")
-  - [x] Не используем исключения в бизнес-процессе в качестве control flow (исключения - сигналы багов.)
+  - [x] Не используем исключения в бизнес-процессе в качестве control flow.
   - [x] Только честные функции.\
+    True function style\
     функция всегда возвращает ответ:\
     two track type **Result**<Data, Error>\
     если она может «сломаться» в процессе исполнения.\
     Пример сервиса с Сильной Доменной Моделью и R.O.P. :
-      ````
-         @Service
-         class SubscriberDataUpdateService(
-            val _subscribersClient: SubscriberGateway
-         ) {
-           
-            fun dataUpdateProcess(
-                   dataUpdateRequest: SubscriberDataUpdateRequest
-            ): Mono<Result<SubscriberDataUpdateResponse>> =
-              getDataUpdate(dataUpdateRequest)
-                .flatMap { getSubscriber(it) }
-                .flatMap { prepareSubscriberUpdateRequest(it) }
-                .flatMap { updateSubscriber(it) }
-            ...
-            ...
+     ````
+       fun dataUpdateProcess(unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest)
+            : Mono<Result<SubscriberDataUpdateResponse>> =
+        Mono.just(ValidatedDataUpdateRequest.emerge(unvalidatedUpdateRequest))
+            .flatMap { findDataWithUpdates(it) }
+            .flatMap { findSubscriberForUpdate(it) }
+            .flatMap { prepareSubscriberUpdateRequest(it) }
+            .flatMap { updateSubscriber(it) }          
+           ...
+           ...
 
-            private fun prepareSubscriberUpdateRequest(
-                    subscriberDataUpdate: Result<SubscriberDataUpdate>
-            ) : Result<SubscriberUpdateRequest> = 
-              Mono.just(subscriberDataUpdate)
-                .filter { it.isSuccess }
-                             //^ canExecute/Execute pattern
-                .flatMap { prepareRequest(it.getOrThrow()) }
-                .switchIfEmpty(returnIncomingError(subscriberDataUpdate))
-                               //^ R.O.P error handling
-                               //передаем ошибку входного параметра по рельсам
-                // Result<SubscriberDataUpdate> > Result<SubscriberUpdateRequest>
-             
+        
+        private fun prepareSubscriberUpdateRequest(subscriberDataUpdate: Result<SubscriberDataUpdate>) 
+            : Mono<Result<SubscriberUpdateRequest>> =
+        //^ > Result<SubscriberDataUpdate> > Result<SubscriberUpdateRequest>
+        subscriberDataUpdate.fold(
+            onSuccess = { it.prepareUpdateRequest() },
+                          //^ бизнес-логика в Доменном классе
+            onFailure = { Result.failure(it) }
+                         //^ Проброс ошибки далее по пайпу
+        ).toMono()    
 
-        ````
-  - [x] Не используем исключения в приложении в качестве control flow
-  
+     ````
+  - [x] С two track type **Result**<Data, Error> обработка ошибок становится гражданином первого класса нашей модели.
+  - [x] Не используем исключения в приложении в качестве control flow бизнес-процесса
+  - [x] исключения - сигналы багов.
 ---
 - **Функциональный подход** [Pipeline Oriented Programming](https://fsharpforfunandprofit.com/pipeline/) при проектировании кода с бизнес-логикой
   - [x] **Запусти Доменную Модель по тоннелю «бизнес-процесс» без исключений, на шлюзах поможет two track type Result<Data, Error> и canExecute/execute**\
@@ -337,16 +351,16 @@ https://t.me/maxology
     ````
     Пример хорошего кода приложения в функциональном стиле:
     ````
-        fun dataUpdateProcess(dataUpdateRequest: SubscriberDataUpdateRequest)
-        : Mono<Result<SubscriberDataUpdateResponse>> =
-          getDataUpdate(dataUpdateRequest)                   
-            .flatMap { getSubscriber(it) }                   
-            .flatMap { prepareSubscriberUpdateRequest(it) }  
-            .flatMap { updateSubscriber(it) }                
-    ````
-    
+        fun dataUpdateProcess(unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest)
+            : Mono<Result<SubscriberDataUpdateResponse>> =
+        Mono.just(ValidatedDataUpdateRequest.emerge(unvalidatedUpdateRequest))
+            .flatMap { findDataWithUpdates(it) }
+            .flatMap { findSubscriberForUpdate(it) }
+            .flatMap { prepareSubscriberUpdateRequest(it) }
+            .flatMap { updateSubscriber(it) }            
+    ```` 
   - [x] не используй void в функциях
-  - [x] никаких побочных эффектов в функциях.
+  - [x] честные и чистые функции
 
 --- 
 - [YAGNI + KISS как самые ценные принципы проектирования](https://enterprisecraftsmanship.com/posts/most-valuable-software-development-principles/)
@@ -497,6 +511,9 @@ https://t.me/maxology
    }
     
    ````
+  При таком подходе к дизайну кода мы получаем из коробки качественное покрытие тестами,\
+  типы, которые описывают бизнес-логику. 
+  ![Alt text](images/test-coverage.png)
 
 ## **Резюме:**
 
@@ -504,7 +521,8 @@ https://t.me/maxology
 - Опиши в функциональном стиле бизнес-процесс с доменными классами
 - Реализуй в функциональном стиле всегда валидную Богатую Доменную Модель без примитивов
 - Покрой юнит-тестами бизнес-логику, которая содержится в Доменной Модели
-- Запусти Доменную Модель по тоннелю «бизнес-процесс» без исключений, на шлюзах поможет two track type Result<Data, Error> и canExecute/execute.
+- Запусти Доменную Модель по тоннелю «бизнес-процесс» без исключений, 
+  на шлюзах поможет two track type Result<Data, Error> и canExecute/execute.
 
 По рецепту возможно получить в качестве результата:
 - Простую, строгую структуру приложения - хороший дизайн кода в функциональным стиле
@@ -526,11 +544,10 @@ https://t.me/maxology
 **This is The Way** © The Mandalorian
 
 ---
-Оставте, пожалуйста, отзыв о выступлении!
+Оставте, пожалуйста, отзыв о выступлении!\
+https://t.ly/KGRL
 
-
-![Alt text](images/feedback.jpeg "Feedback")
-
+![Alt text](images/feedback.png "Feedback")
 
 ---
 
@@ -586,3 +603,4 @@ https://t.me/maxology
 - [x] [Value Objects](https://enterprisecraftsmanship.com/posts/value-objects-explained/)
 - [x] [pipeline oriented](https://fsharpforfunandprofit.com/pipeline/)
 - [x] [type-inference](https://fsharpforfunandprofit.com/posts/type-inference/)
+- [x] [Sealed Classes Instead of Exceptions in Kotlin](https://phauer.com/2019/sealed-classes-exceptions-kotlin/)

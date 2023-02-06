@@ -1,4 +1,4 @@
-package team.codemonsters.ddd.toolkit.domain
+package team.codemonsters.ddd.toolkit.domain.controller
 
 import org.junit.jupiter.api.Test
 import org.slf4j.Logger
@@ -17,7 +17,7 @@ import team.codemonsters.ddd.toolkit.controller.RestRequest
 @AutoConfigureWireMock(port = 0)
 @ActiveProfiles(profiles = ["test"])
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class SubscriberDataUpdateControllerTest(@Autowired val webTestClient: WebTestClient) {
+internal class SubscriberDataUpdateControllerTest(@Autowired val webTestClient: WebTestClient) {
     val log: Logger = LoggerFactory.getLogger(SubscriberDataUpdateControllerTest::class.java)
 
     /**
@@ -62,7 +62,7 @@ class SubscriberDataUpdateControllerTest(@Autowired val webTestClient: WebTestCl
             }
             .jsonPath("@.actualTimestamp").isNotEmpty
             .jsonPath("@.status").isEqualTo("success")
-            .jsonPath("@.data.subscriberId").isEqualTo("999")
+            .jsonPath("@.data.subscriberId").isEqualTo("777")
             .jsonPath("@.data.dataUpdateId").isEqualTo("101")
     }
 

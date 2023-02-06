@@ -6,9 +6,8 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
-import team.codemonsters.ddd.toolkit.dto.SubscriberDto
-import team.codemonsters.ddd.toolkit.dto.DataUpdateDto
 import team.codemonsters.ddd.toolkit.controller.RestResponse
+import team.codemonsters.ddd.toolkit.dto.SubscriberDto
 
 @Component
 class SubscriberRestClient(
@@ -19,7 +18,8 @@ class SubscriberRestClient(
     private var subscribersUrl: String,
 ) {
 
-    fun findDataUpdate(dataUpdateId: String): Mono<RestResponse<DataUpdateDto>> {
+    fun findDataUpdate(dataUpdateId: String)
+            : Mono<Result<RestResponse<DataUpdateDto>>> {
         val typeRef: ParameterizedTypeReference<RestResponse<DataUpdateDto>> =
             object : ParameterizedTypeReference<RestResponse<DataUpdateDto>>() {}
         return webClient
@@ -28,9 +28,12 @@ class SubscriberRestClient(
             .accept(MediaType.APPLICATION_JSON)
             .retrieve()
             .bodyToMono(typeRef)
+            .map { Result.success(it) }
+            .onErrorResume { Mono.just(Result.failure(it)) }
     }
 
-    fun findSubscriber(subscriberId: String): Mono<RestResponse<SubscriberDto>> {
+    fun findSubscriber(subscriberId: String)
+            : Mono<Result<RestResponse<SubscriberDto>>> {
         val typeRef: ParameterizedTypeReference<RestResponse<SubscriberDto>> =
             object : ParameterizedTypeReference<RestResponse<SubscriberDto>>() {}
         return webClient
@@ -39,17 +42,8 @@ class SubscriberRestClient(
             .accept(MediaType.APPLICATION_JSON)
             .retrieve()
             .bodyToMono(typeRef)
+            .map { Result.success(it) }
+            .onErrorResume { Mono.just(Result.failure(it)) }
     }
 
-
-//    fun findSubscriber(targetName: String): Mono<RestResponse<SubscriberDto>> {
-//        val typeRef: ParameterizedTypeReference<RestResponse<SubscriberDto>> =
-//            object : ParameterizedTypeReference<RestResponse<SubscriberDto>>() {}
-//        return webClient
-//            .put()
-//            .uri(subscribersUrl, targetName)
-//            .accept(MediaType.APPLICATION_JSON)
-//            .retrieve()
-//            .bodyToMono(typeRef)
-//    }
 }

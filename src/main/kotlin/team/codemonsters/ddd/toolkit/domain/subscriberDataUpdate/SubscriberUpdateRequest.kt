@@ -8,5 +8,5 @@ data class SubscriberUpdateRequest constructor(
     val mobileRegionId: String,
     private val dataUpdate: SubscriberDataUpdate
 ) {
-   val dataUpdateId = dataUpdate.dataUpdateId
+   val dataUpdateId = dataUpdate.dataUpdateId.value
 }
