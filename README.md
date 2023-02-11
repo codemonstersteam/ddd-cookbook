@@ -555,8 +555,9 @@ https://t.ly/KGRL
 
 [![Alt text](images/TestsBook.png "")](https://www.piter.com/product_by_id/212580594)
 
-
 [![Alt text](images/DDDBook.png "")](https://pragprog.com/titles/swdddf/domain-modeling-made-functional/)
+
+[![Alt text](images/ddd-15years.png "Domain-Driven DesignThe First 15 Years")](https://leanpub.com/ddd_first_15_years/)
 
 
 [![This Is Tha Way](images/SoftwareCraftsmanship.png "Software Craftsmanship manifest")](http://manifesto.softwarecraftsmanship.org/#/ru-ru)
