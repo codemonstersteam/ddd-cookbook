@@ -28,9 +28,11 @@ internal class SubscriberDataUpdateTest {
         val subscriberResult = Subscriber.emerge(
             foundSubscriberDto
         )
+        //^ воссоздаем необходимое нам состояние Обновление абонента
         //act
         val sut = SubscriberDataUpdate.emerge(dataUpdate, subscriberResult)
         //assert
+        //i like fluent assertion library assertJ
         assertThat(sut.isSuccess).isTrue
         assertThat(sut.getOrThrow().prepareUpdateRequest().isSuccess).isTrue
         val subscriberUpdateRequest = sut.getOrThrow()

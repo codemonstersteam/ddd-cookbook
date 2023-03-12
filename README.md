@@ -1,521 +1,823 @@
-# ddd-code-cookbook
+## DDD в действии
 
-5 приемов, которые помогают в борьбе за чистый код
-при разработке приложений по DDD&TDD
+Руководство с примерами на Kotlin по внедрению Предметно Ориентированного Проектирования (Domain Driven Design) в команду и обращения её в безумную машину по доставке чистого кода.
 
-Ссылка на git
+С собой ты унесешь паттерн приложения с тестами на бизнес-логике и кучу полезных рекомендаций, которые работают.
+
+
+Обсудим Сложности:
+
+- стать экспертом
+- стать безумной машиной доставки
+- принять лидерство
+- не говорить про DDD
+
+- Ссылка на git [https://t.ly/pwgy](https://t.ly/pwgy)
+
 
 ![Alt text](images/qr-link.png)
 
 email: maxim[at]codemonsters.team\
-https://t.me/maxology
+https://t.me/codemonsterslogs
 
 «I am strong believer in a “begin with the concrete, and move to the abstract” pedagogical approach» © [Scott Wlaschin](https://fsharpforfunandprofit.com/about/)
 
-
 «The problem contains the solution»
+
+Как писать меньше кода с тестами - в кукбуке ответ.    
+Меньше кода лучше.  
+
+Не забудь про Эрика Еванса!  
+DDD is not Done!   
+DDD 20 years
 
 ---
 
-## **Цель:**
-Повысить качество кода разработки приложений с бизнес-логикой
+## **Вызовы:**
+Повысить качество кода разработки приложений с бизнес-логикой и упростить контроль-передачу паттернов
+### Бизнес
 - [x] Снизить стоимость доработок
 - [x] Снизить стоимость поддержки
 - [x] Снизить стоимость погружения новичков
 - [x] Сокращения количества ошибок
 
-Высвободить время лида разработки на программирование и развитие за счет:
+### Лид
+Высвободить время лида разработки на программирование и развитие за счет
 - [x] Повышения эффективности делегирования
 - [x] Сокращения времени на встречи «погружения разработчиков» в методологию
 - [x] Сокращения времени на проверку кода
 - [x] Сокращения времени на осознание кода
 
+### Developer Advocate
+- [x] Тесты - это невероятно веселый прагматичный процесс
+- [x] DDD - это не сложно и эффективно
 
 ## **Задача:**
 
 ````
-  Найти рецепт на основе лучших практик, который поможет: 
-  в рефакторинге, 
-  в создании приложений с бизнес-логикой 
-  с использованием практичных юнит-тестов, функциональной парадигмы.
+  Найти рецепт на основе лучших практик, который поможет:
+  - при создании приложений с бизнес-логикой 
+  - в рефакторинге
+  - контроле качества кода   
+  с использованием набора практичных юнит-тестов, функциональной парадигмы.
   Применить подход на практике.
   Описать кратко и доступно рецепт.
-  Внедрить в команде.
+  Внедрить в команде и обратить ее 
+  в безумную машину по доставке чистого кода.
 ````
 ---
 На автора оказали влияние работы инженеров:\
-[Владимира Хорикова](https://enterprisecraftsmanship.com/), [Скотта Влашина](https://fsharpforfunandprofit.com/), [Роберта Мартина](https://cleancoders.com/)
+[Владимира Хорикова](https://enterprisecraftsmanship.com/), [Скотта Влашина](https://fsharpforfunandprofit.com/), [Роберта Мартина](https://cleancoders.com/)  
 
-## «Рецепт» разработки бизнес-логики в функциональном стиле с примерами на Kotlin:
-- **DDD** :: общаемся с экспертами и проектируем бизнес-логику вместе
+Устремления к эффективным действиям, продуктивной работе и достижениям.
 
-  - [x] Единый язык в документации, коде, в общении с экспертами домена
-  - [x] **Опиши в функциональном стиле бизнес-процесс с доменными классами**\
-    Пример:\
-    Чтобы актуализировать данные по абоненту в системе, необходимо:
-    ````
-    | запросить данные для обновления абонента 
-    | запросить текущие данные абонента в системе
-    | сформировать запрос на обновление абонента
-    | отправить запрос обновления данных абонента
-    ````
-    ^ хорошо помогает в рефакторинге
+## DDD в действии : Рецепт
+### DDD :: Качественная разработка - результат качественной коммуникации, а не постановки.
+
+Стратегические паттерны спешат на помощь ломать мыслепологание разработчиков.
+
+Разработка - это не просто программирование.
+
+О чем не сказали нам Кент Бек, Роберт Мартин в самом начале?
+
+> Eric Evans:
+> 
+> Highly productive teams grow their knowledge consciously, practicing continuous learning (Kerievsky 2003). For developers, this means improving technical knowledge, along with general domain-modeling skills (such as those in this book). But it also includes serious learning about the specific domain they are working in.
+> 
     
-    Как часто бывает, не делай так:
-    ````
-     0. Снять с себя ответственность и кодить по постановке
-     1. В таблице <обновление_данных> взять все строки со статусом need_to_update
-     2. В таблице абонента взять данные по абоненту по идентификатору <обновление_данных>.subscriber_id,
-        если таких данных нет, пометить ошибкой
-     3. Сверить строки как то так.
-     4. Если данные отличаются см. пункт 5
-     5. Отдельная страница в конфлюенс на два скрола со сложной логикой обновления данных, 
-        сиквенс диаграммой и т.д.
-    ````
-  - [x] Забудь Table-Driven Design (Database Oriented мышление) - используй только Доменные объекты при обсуждении задачи. Не думай о низкоуровневой реализации.  
-  - [x] Используй в коде Сильную Доменную модель - вся логика описана в доменных объектах, не в сервисах:
-    
-    ````
-        class SubscriberDataUpdate(
-              val subscriber: Subscriber, 
-              val dataUpdate: SubscriberDataUpdate
-        ) {
-              fun isUpdateRequired(): Boolean = 
-                 subscriber.mobileRegionId != dataUpdate.mobileRegionId 
-        }
-    ````
+- [x] Разработчик - эксперт предметной области
+- [x] Общаемся с экспертами и проектируем решения совместно | Event Storming на свой лад
+- [x] **Ubiquity Language** - Обыденный язык - Единый язык в документации, коде, в общении с экспертами домена. Наблюдательность.
+- [x] **Bounded Context** : Ограничиваем контекст и учимся находить место бизнес-логике\
+ \
+Контекст Задачи Обновление Абонента\
+![Alt text](images/microservices.png)
+### Границы ответственности сервиса Subscribers - по бизнес потокам:
+  Абонент
+  - Сотворение абонента
+  - Изменение лояльности
+  - Обновление информации абонента по **запросу на обновление данных**
+Если просто Абоненты знают и умеют все про абонентов и могут обработать запрос на изменение данных абонента.
+### Границы ответственности сервиса обновления данных
+  Обновление данных
+
+  - получает информацию из внешней системы об абоненте
+  - получает информацию из внутренней системы об абоненте
+  - формирует **запрос на обновление данных**
+
+Общий контракт двух контекстов: **запрос на обновление данных**
+
+### Организация процессов в команде
+
+Удобно когда все под рукой, сопроводительная документация юзабельна и собрана по фичам, юзер стори, инфо потокам.
+Нет лишним кликам и куче разбросанный страниц.  
+Is it Job Safety?
+
+![Alt text](images/team.png)
+
+![Alt text](images/jira.png)
+
+- [x] Пришло время описывать тикеты, сопроводительную документацию и положить это все в одно релевантное место по бизнес процессу.
+   - Все документы по обновлению данных лежат рядом в одном месте под рукой. В одном контексте - в одном разделе конфлю.
+   - Нахрен поиски по типизировоанным разделам и когнетивную нагрузку при сборке в голове карты происходящего - облегчаем себе жизнь.
+   - Документация к сервисам - в исходниках
+   - Сопроводительную документацию собираем в одном разделе по бизнес-процессу
+     ![Alt text](images/supporting-documentation.png)
+
+- [x] | Волшебство Unix Pipe Головного Мозга
+  ````zsh
+  curl | jq | more
+  ls -la | grep 
+  ```` 
+  >A pipe is a form of redirection 
+  >(transfer of standard output to some other destination) 
+  >that is used in Linux and other Unix-like operating systems to 
+  >send the output of one command/program/process to another.
+  >А что если я разработчик и У меня windows?
+
+- [x] **Опиши верхнеуровнево в функциональном стиле бизнес-процесс**\
+  Описание должно просто ответить на вопрос:\
+  Что происходит в системе по бизнес-процессу? :)
+
+  Просто и понятно человеку в стиле Unix Pipe.
+
+
+  **Пример**:\
+  Чтобы актуализировать данные по абоненту в системе, необходимо:
+  ````
+  | запросить данные для обновления абонента 
+  | запросить текущие данные абонента в системе
+  | сформировать запрос на обновление абонента
+  | отправить запрос обновления данных абонента
+  ````
+  ^ хорошо помогает в рефакторинге - может оказаться так, что код делает не совсем то и не совсем так, что должен или там много уже лишнего.\
+  Упрощаем.
+ 
+  **Отвратительный паттерн**:
+
+  Разработчик сидит и ждет дательную постановку, что и как должно происходить в каком сервисе в какой таблице.  
+  Отвечают за все аналитики. Это что война?  
   
-    Не используй анти-паттерн Слабая Доменная Модель > [Anemic Domain Model](https://www.martinfowler.com/bliki/AnemicDomainModel.html):
-    ```` 
-        data class Subscriber(
-              val subscriberId: String,
-              val msisdn: String, 
-              val mobileRegionId: String
-        )
-    
-    ````
-    
-    Пример плохой реализации со слабой доменной моделью и бизнес-логикой в сервисе:
-      ````
-       @Service
-       class SubscriberDataUpdateService(
-         val subscriberGateWay: SubscriberGateway, 
-         val dataUpdate: SubscriberDataUpdateGateway
-       ) {
-    
-            fun dataUpdateProcess() {                                                         
-                updateSubscriber(
-                     dataUpdate.getDataForUpdate()
-                )                                                                          
-            }  
-             //^ бизнес-логика и интеграции находятся в сервисах 
-             // обычно их много и разработчик 
-             // занят детективным расследованием при любой доработке
-             // доменные модели при этом выступают в роли контейнера данных
-             // код обрастает комментариями - а это плохой признак
-      
-            private fun updateSubscriber(
-                           dataUpdate: SubscriberDataUpdate
-            ) {
-                val subscriber = 
-                    subscriberGateWay.finedById(dataUpdate.subscriberId)
-                                                                  
-                if (isUpdateRequired(subscriber, subscriberDataUpdate))
-                     //^ бизнес-логика
-                      updateSubscriberWithData(subscriber, subscriberDataUpdate)                      
-            }
-              
-            private fun isUpdateRequired(
-                             subscriber: Subscriber, 
-                             dataUpdate: SubscriberDataUpdate
-            ) =
-                  subscriber.modileRegionId != dataUpdate.mobileRegionId 
-      
-            private fun updateSubscriberWithData(
-                             subscriber: Subscriber, 
-                             dataUpdate: SubscriberDataUpdate
-            ) {
 
-                val updateSubscriberDto = 
-                                   SubscriberDto( 
-                                      subscriber.subscriberId, 
-                                      dataUpdate.mobileRedionId
-                )                     //^ бизнес-логика
-                subscriberGateWay.updateSubscriber(
-                         updateSubscriberDto
-                )        //^ может вылететь исключение  
-                                  
-                // далее сложная логика по обновлению взаимосвязанных сущностей с Subscriber 
-                // логика растеклась, границ у Доменов нет
-                if (subscriber.msisdn != dataUpdate.msisdn) {
-                   updateMnp(subscriber, subscriberDataUpdate)
-                   updateLoyalty(subscriber, subscriberDataUpdate)     
-                }
-            }
-       }
-      ````
-    
-  - [x] Изолируем доменную модель от интеграций с внешними системами\
-    [Onion Architecture](http://jeffreypalermo.com/blog/the-onion-architecture-part-1/) \
-    Уровень сервисов используем как простой поток\
-    Помогает в тестировании\
-    ![Alt text](images/DomainModel.jpg)
-  
-    Постановка:
-      ````
-      | запросить данные для обновления абонента
-      | запросить текущие данные абонента в системе
-      | сформировать запрос на обновление абонента
-      | отправить запрос обновления данных абонента
-      ````
-    Пример сервиса с Сильной Доменной Моделью:
-      ````
-       @Service
-       ...
-       fun dataUpdateProcess(unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest)
-            : Mono<Result<SubscriberDataUpdateResponse>> =
-        Mono.just(ValidatedDataUpdateRequest.emerge(unvalidatedUpdateRequest))
-            .flatMap { findDataWithUpdates(it) }
-            .flatMap { findSubscriberForUpdate(it) }
-            .flatMap { prepareSubscriberUpdateRequest(it) }
-            .flatMap { updateSubscriber(it) }          
-           ...
-           ...
+  Так все еще бывает:
+  ````
+   0. Снять с себя ответственность и кодить по постановке
+   1. В таблице <обновление_данных> взять все строки со статусом need_to_update
+   2. В таблице абонента взять данные по абоненту по идентификатору <обновление_данных>.subscriber_id,
+      если таких данных нет, пометить ошибкой
+   3. Сверить строки как то так.
+   4. Если данные отличаются см. пункт 5
+   5. Отдельная страница в конфлюенс на два скрола со сложной логикой обновления данных, 
+      сиквенс диаграммой и т.д.
+  ````
+- [x] Чем плохи долгие постановки в конфлю с кучей информации по имплементации от аналитика?
+- [x] Аналитикой в том числе занимается разработчик как эксперт предметной области
+- [x] Забудь Table-Driven Design (Database Oriented мышление) - используй только Доменные объекты при обсуждении задачи. Не думай о низкоуровневой реализации.
 
-        private fun prepareSubscriberUpdateRequest(subscriberDataUpdate: Result<SubscriberDataUpdate>)
-            : Mono<Result<SubscriberUpdateRequest>> =
-        subscriberDataUpdate.fold(
-            onSuccess = { it.prepareUpdateRequest() },
-                          //^ бизнес-логика в Доменном классе
-            onFailure = { Result.failure(it) }
-        ).toMono()
-
-      ````
-  - [x] **Реализуй в функциональном стиле всегда валидную Богатую Доменную Модель**\
-    Для описания Доменных классов в функциональном стиле помогает\
-    описать бизнес-процесс в цепочке классов:
-
-    - Постановка:
-    ````
-      | запросить данные для обновления абонента
-      | запросить текущие данные абонента в системе
-      | сформировать запрос на обновление абонента
-      | отправить запрос обновления данных абонента
-    ````
-    - Последовательность алгебраических типов:
-      
-    ````
-      |> Непроверенный Запрос на Обновление | UnvalidatedDataUpdateRequest
-      |> Проверенный Запрос На Обновление   | ValidatedDataUpdateRequest
-      |> Запрос Абонента В Системе          | SubscriberDataUpdate
-      |> Запрос На Обновление Абонента      | SubscriberUpdateRequest
-      |> Результат Обновления Абонента      | SubscriberDataUpdateResponse
-    ````
-      
-     Пример плохого возможно Невалидного Доменного класса:
-     ````
-        class SubscriberDataUpdate(
-                val subscriber: Subscriber?, 
-                val dataUpdate: SubscriberDataUpdate
-          ) {
-                fun isValid() = null != subscriber
-    
-                fun isUpdateRequired() = 
-                   subscriber.mobileRegionId != dataUpdate.mobileRegionId 
-        }
-     ````
-     Всегда валидная Доменная модель возникает только благодаря фабричным методам,\
-     или не возникает вовсе:
-     ````   
-        data class SubscriberDataUpdate private constructor(
-             private val dataUpdate: DataUpdate,
-             private val subscriber: Subscriber
-         ) {
-       
-           val subscriberId: SubscriberId = subscriber.subscriberId
-           val dataUpdateId: DataUpdateId = dataUpdate.dataUpdateId
-       
-           fun prepareUpdateRequest()
-           : Result<SubscriberUpdateRequest> 
-           ...
-           ...
-    
-           companion object {
-               fun emerge(
-                   dataUpdate: DataUpdate,
-                   subscriberResult: Result<Subscriber>
-               ): Result<SubscriberDataUpdate> =
-                    //^ нет иной возможности в коде создать объект
-                    // > Result<Data, Error> two-track type
-                   subscriberResult.map {
-                       SubscriberDataUpdate(
-                           dataUpdate,
-                           Subscriber(
-                                   it.subscriberId, 
-                                   it.msisdn, 
-                                   it.mobileRegionId)
-                           )
-                   }
-           }
-       
-       }
-        
-     ````
-    - [x] TDD - Type Driven Development как защита от багов на уровне компиляции.\
-      Код без примитивов - сам себя тестирует\ 
-      и описывает ограничения предусмотренные бизнес-логикой.\
-      Код есть документация.\
-      Появляется Единственная точка входа в процесс валидации.\
-      ValueObject pattern - основной кирпичик описания модели - это важно понимать.\
-      Пример SubscriberId:
-      ````
-      data class SubscriberId 
-      private constructor(override val value: String) 
-      : ValueObject<String> {
-        companion object {
-         fun emerge(subscriberId: String)
-         : Result<SubscriberId> =
-           when (isStringConsists9Digits(subscriberId)) {
-              true -> Result.success(SubscriberId(subscriberId))
-              else -> Result.failure(IllegalArgumentException("Subscriber Id consists of numbers maximum length 9"))
-           }
-
-           private fun isStringConsists9Digits(value: String) =
-             value.trim().isNotEmpty()
-                    && value.length < 10
-                    && value.lineSequence().all { it in "0".."9" }
-           }
-      }
-      ````
-
----     
-- **Не используем исключения при работе с ошибками в бизнес-процессе в качестве control flow**
-  
-  Исключения как инструмент мешают в восприятии бизнес-процесса,\
-  как **непрерывного потока**.\
-  [Railway Oriented Programming - error handling in functional languages](https://fsharpforfunandprofit.com/rop/) как паттерн при работе с ошибками в бизнес-логике.
-  
-  Процесс обновления данных можно представить как\
-  Последовательность классов:
-   ````
-      > Непроверенный Запрос на Обновление 
-      > Проверенный Запрос На Обновление 
-      > Запрос Абонента В Системе 
-      > Запрос На Обновление Абонента 
-      > Результат Обновления Абонента
-   ````
-    ![Alt text](images/ROP.jpg "R.O.P")
-  - [x] Не используем исключения в бизнес-процессе в качестве control flow.
-  - [x] Только честные функции.\
-    True function style\
-    функция всегда возвращает ответ:\
-    two track type **Result**<Data, Error>\
-    если она может «сломаться» в процессе исполнения.\
-    Пример сервиса с Сильной Доменной Моделью и R.O.P. :
-     ````
-       fun dataUpdateProcess(unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest)
-            : Mono<Result<SubscriberDataUpdateResponse>> =
-        Mono.just(ValidatedDataUpdateRequest.emerge(unvalidatedUpdateRequest))
-            .flatMap { findDataWithUpdates(it) }
-            .flatMap { findSubscriberForUpdate(it) }
-            .flatMap { prepareSubscriberUpdateRequest(it) }
-            .flatMap { updateSubscriber(it) }          
-           ...
-           ...
-
-        
-        private fun prepareSubscriberUpdateRequest(subscriberDataUpdate: Result<SubscriberDataUpdate>) 
-            : Mono<Result<SubscriberUpdateRequest>> =
-        //^ > Result<SubscriberDataUpdate> > Result<SubscriberUpdateRequest>
-        subscriberDataUpdate.fold(
-            onSuccess = { it.prepareUpdateRequest() },
-                          //^ бизнес-логика в Доменном классе
-            onFailure = { Result.failure(it) }
-                         //^ Проброс ошибки далее по пайпу
-        ).toMono()    
-
-     ````
-  - [x] С two track type **Result**<Data, Error> обработка ошибок становится гражданином первого класса нашей модели.
-  - [x] Не используем исключения в приложении в качестве control flow бизнес-процесса
-  - [x] исключения - сигналы багов.
 ---
-- **Функциональный подход** [Pipeline Oriented Programming](https://fsharpforfunandprofit.com/pipeline/) при проектировании кода с бизнес-логикой
-  - [x] **Запусти Доменную Модель по тоннелю «бизнес-процесс» без исключений, на шлюзах поможет two track type Result<Data, Error> и canExecute/execute**\
-    Описанный код бизнес-логики должен выглядеть структурно, подобно постановке:\
-    Постановка:
-    ````
-    | запросить данные для обновления абонента
-    | запросить текущие данные абонента в системе
-    | сформировать запрос на обновление абонента
-    | отправить запрос обновления данных абонента
-    ````
-    Пример хорошего кода приложения в функциональном стиле:
-    ````
-        fun dataUpdateProcess(unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest)
+
+### Перенесем документацию в Код
+
+Помни: 
+
+>Код - побочный эффект коммуникации
+
+Постановка: 
+
+````zsh
+| запросить данные для обновления абонента
+| запросить текущие данные абонента в системе
+| сформировать запрос на обновление абонента
+| отправить запрос обновления данных абонента
+````
+
+P.O.P - [Pipeline Oriented Programming](https://fsharpforfunandprofit.com/pipeline/)  
+Scott Wlaschin: 
+>Passing data through a pipeline of transformations
+>is an alternative approach to classic OOP
+
+Пример кода из сервиса в стиле P.O.P.:  
+```kotlin
+@Service
+
+fun dataUpdateProcess(unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest)
+: Mono<Result<SubscriberDataUpdateResponse>> =
+    Mono.just(ValidatedDataUpdateRequest.emerge(unvalidatedUpdateRequest))
+    .flatMap { findDataWithUpdates(it) }
+    .flatMap { findSubscriberForUpdate(it) }
+    .flatMap { prepareSubscriberUpdateRequest(it) }
+    .flatMap { updateSubscriber(it) }
+```
+
+
+### Какие паттерны нам помогут описать бизнес-процесс так просто?
+
+- [x] **R.O.P Railway Oriented Programming in Error Handling**
+- [x] **Сильная Доменная модель | Rich Domain Model**
+- [x] Type Driven Development другое TDD
+- [x] Onion Architecture
+- [x] Can Execute/Execute
+- [x] TDD: Классическая школа Тестирования и совсем немного лондонского вайба
+
+Соберем все это в чистый код в функциональной парадигме?
+
+---
+Я выделю две центральные идеи вокруг которых все прочно выстраивается:  
+### Две крепости тактических паттернов в функциональной парадигме DDD
+
+
+- [x] **R.O.P Railway Oriented Programming in Error Handling**
+- [x] **Сильная Доменная модель | Rich Domain Model**
+
+
+___
+#### R.O.P - Railway Oriented Programming in Error Handling
+- [x] Не используем исключения в качестве control flow
+
+Ни в модели ни в интеграционных взаимодействиях  
+
+>Исключения как инструмент мешают в восприятии бизнес-процесса, как **непрерывного потока**.
+
+
+Мы используем [Railway Oriented Programming - error handling in functional languages](https://fsharpforfunandprofit.com/rop/) как паттерн при работе с ошибками.  
+
+![Alt text](images/ROP.jpg "R.O.P")
+
+Постановка:  
+
+````zsh
+| запросить данные для обновления абонента
+| запросить текущие данные абонента в системе
+| сформировать запрос на обновление абонента
+| отправить запрос обновления данных абонента
+````
+
+Пример кода из сервиса в стиле P.O.P.:  
+```kotlin
+@Service
+
+fun dataUpdateProcess(unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest)
+: Mono<Result<SubscriberDataUpdateResponse>> =
+    Mono.just(ValidatedDataUpdateRequest.emerge(unvalidatedUpdateRequest))
+    .flatMap { findDataWithUpdates(it) }
+    .flatMap { findSubscriberForUpdate(it) }
+    .flatMap { prepareSubscriberUpdateRequest(it) }
+    .flatMap { updateSubscriber(it) }
+```
+Вывод:
+- [x] Не используем исключения в бизнес-процессе в качестве control flow
+- [x] Только честные функции
+
+#### КАК ЭТО РАБОТАЕТ?
+-[x] True **pure** and **honest** function style    
+функция всегда возвращает ответ:  **Two Track Type : Result<Data, Error>**  
+если она может «сломаться» в процессе исполнения.  
+
+Пример сервиса в стиле R.O.P.:  
+
+````kotlin
+   fun dataUpdateProcess(unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest)
+        : Mono<Result<SubscriberDataUpdateResponse>> =
+    Mono.just(ValidatedDataUpdateRequest.emerge(unvalidatedUpdateRequest))
+        .flatMap { findDataWithUpdates(it) }
+        .flatMap { findSubscriberForUpdate(it) }
+        .flatMap { prepareSubscriberUpdateRequest(it) }
+        .flatMap { updateSubscriber(it) }          
+       ...
+       ...
+
+    // > Result IN > Result OUT
+    private fun prepareSubscriberUpdateRequest(subscriberDataUpdate: Result<SubscriberDataUpdate>) 
+        : Mono<Result<SubscriberUpdateRequest>> =
+    subscriberDataUpdate.fold(
+        onSuccess = { it.prepareUpdateRequest() },
+                      //^ Бизнес-логика в Доменном классе
+        onFailure = { Result.failure(it) }
+                     //^ ошибку пробрасываем далее по пайпу процесса
+    ).toMono()    
+
+````
+> Fold In functional programming, fold (also termed reduce, accumulate, aggregate, compress, or inject)
+
+> Can Execute/ Execute pattern  
+> imperative style
+````
+private fun prepareSubscriberUpdateRequest(
+    subscriberDataUpdate: Result<SubscriberDataUpdate>
+): Result<SubscriberUpdateRequest> {
+  if(subscriberDataUpdate.isSuccess) {
+      return subscriberDataUpdate.data.prepareUpdateRequest()
+  } else {
+      Result.failure(subscriberDataUpdate.error)
+  }      
+} 
+````
+> Filter Style in pipe
+> 
+
+````
+private fun prepareSubscriberUpdateRequest(
+    subscriberDataUpdate: Result<SubscriberDataUpdate>
+): Mono<Result<SubscriberUpdateRequest>> =
+     Mono.just(subscriberDataUpdate)
+         .filter{it.isSuccess}
+         .map { it.getOrThrow() }
+         .map{it.prepareUpdateRequest()}
+         .switchIfEmpty(throwErrorFronInput(it))
+````
+Вывод:
+- [x] Не используем исключения в качестве control flow
+- [x] Только честные и чистые функции
+- [x] С two track type **Result**<Data, Error> обработка ошибок становится гражданином первого класса нашей модели
+- [x] Не используем исключения, Карл! ?:) Да Элвис, не используем 
+- [x] **исключения для нас исключительно сигналы багов!**
+
+#### Сильная Доменная модель | Rich Domain Model
+Логика описана в доменных объектах, не в сервисах:
+
+````
+//AggregateRoot
+data class SubscriberDataUpdate private constructor(
+    private val dataUpdate: DataUpdate,
+    private val subscriber: Subscriber
+) {
+
+    fun prepareUpdateRequest(): Result<SubscriberUpdateRequest> = {..}
+
+    private fun failNoUpdateRequired(): Result<SubscriberUpdateRequest> = {..}
+       
+    private fun createSubscriberUpdateRequest()
+            : Result<SubscriberUpdateRequest> = {..}
+
+    private fun isUpdateRequired(): Boolean =
+        subscriber.mobileRegionId != dataUpdate.mobileRegionId
+
+    companion object {
+        fun emerge(
+            dataUpdate: DataUpdate,
+            subscriberResult: Result<Subscriber>
+        ): Result<SubscriberDataUpdate> =
+            subscriberResult.map {
+                SubscriberDataUpdate(dataUpdate, it)
+            }
+    }
+````
+
+Не используй анти-паттерн Слабая Доменная Модель > [Anemic Domain Model](https://www.martinfowler.com/bliki/AnemicDomainModel.html):
+```` 
+      data class Subscriber(
+            val subscriberId: String,
+            val msisdn: String, 
+            val mobileRegionId: String
+      )
+  
+````
+Чем плоха слабая доменная модель?  
+Пример плохой реализации сервиса с бизнес-логикой со слабой доменной моделью:
+````
+     @Service
+     class SubscriberDataUpdateService(
+       val subscriberGateWay: SubscriberGateway, 
+       val dataUpdate: SubscriberDataUpdateGateway
+     ) {
+  
+          fun dataUpdateProcess() {                                                         
+              updateSubscriber(
+                   dataUpdate.getDataForUpdate()
+              )                                                                          
+          }  
+           //^ бизнес-логика и интеграции находятся в сервисах 
+           // обычно их много и разработчик 
+           // занят детективным расследованием при любой доработке
+           // доменные модели при этом выступают в роли контейнера данных
+           // код обрастает комментариями - а это плохой признак
+    
+          private fun updateSubscriber(
+                         dataUpdate: SubscriberDataUpdate
+          ) {
+              val subscriber = 
+                  subscriberGateWay.finedById(dataUpdate.subscriberId)
+                                                                
+              if (isUpdateRequired(subscriber, subscriberDataUpdate))
+                   //^ бизнес-логика
+                    updateSubscriberWithData(subscriber, subscriberDataUpdate)                      
+          }
+            
+          private fun isUpdateRequired(
+                           subscriber: Subscriber, 
+                           dataUpdate: SubscriberDataUpdate
+          ) =
+                subscriber.modileRegionId != dataUpdate.mobileRegionId 
+    
+          private fun updateSubscriberWithData(
+                           subscriber: Subscriber, 
+                           dataUpdate: SubscriberDataUpdate
+          ) {
+
+              val updateSubscriberDto = 
+                                 SubscriberDto( 
+                                    subscriber.subscriberId, 
+                                    dataUpdate.mobileRedionId
+              )                     //^ бизнес-логика
+              subscriberGateWay.updateSubscriber(
+                       updateSubscriberDto
+              )        //^ может вылететь исключение  
+                                
+              // далее сложная логика по обновлению взаимосвязанных сущностей с Subscriber 
+              // логика растеклась, границ у Доменов нет
+              if (subscriber.msisdn != dataUpdate.msisdn) {
+                 updateMnp(subscriber, subscriberDataUpdate)
+                 updateLoyalty(subscriber, subscriberDataUpdate)     
+              }
+          }
+     }
+````
+Слабая доменная модель - **анти-паттерн**.
+
+Ок. Мы описали класс сильной доменной моделью, протестируем его?  
+
+````
+internal class SubscriberDataUpdateTest {
+
+    @Test
+    fun success() {
+        //arrange
+        val foundDataUpdateDto = DataUpdateDto(
+            dataUpdateId = "101",
+            subscriberId = "888",
+            msisdn = "3338887770",
+            mobileRegionId = "9" //<
+        )
+        val foundSubscriberDto = SubscriberDto(
+            subscriberId = "888",
+            msisdn = "3338887770",
+            mobileRegionId = "0" //<
+        )
+
+        val dataUpdate = DataUpdate.emerge(
+            foundDataUpdateDto
+        ).getOrThrow()
+        val subscriberResult = Subscriber.emerge(
+            foundSubscriberDto
+        )
+        //^ воссоздаем необходимое нам состояние Обновление абонента
+        //act
+        val sut = SubscriberDataUpdate.emerge(dataUpdate, subscriberResult)
+        //assert
+        //i like fluent assertion library assertJ
+        assertThat(sut.isSuccess).isTrue
+        assertThat(sut.getOrThrow().prepareUpdateRequest().isSuccess).isTrue
+        val subscriberUpdateRequest = sut.getOrThrow()
+            .prepareUpdateRequest().getOrThrow()
+        assertThat(subscriberUpdateRequest.subscriberId).isEqualTo("888")
+        assertThat(subscriberUpdateRequest.msisdn).isEqualTo("3338887770")
+        assertThat(subscriberUpdateRequest.mobileRegionId).isEqualTo("9")
+    }
+    
+    //fails in da src
+
+}
+````
+#### DDD :: Aggregate
+
+Eric Avans:
+> An AGGREGATE is a cluster of associated objects that we treat as a unit for the purpose of data changes.
+
+Scott Wlaschin:
+> An aggregate plays an important role when data is updated. The aggregate acts as the consistency boundary: when one part of the aggregate is updated, other parts might also need to be updated to ensure consistency.  
+>
+> The aggregate is also where any invariants are enforced.
+>
+
+---
+### Unix Pipe Головного мозга и отсутствие примитивов
+
+#### TDD :: Type Driven Development как защита от багов на уровне компиляции
+>Кодопись без примитивов в ядре доменной модели - сам себя тестирует
+>и описывает ограничения предусмотренные бизнес-логикой.
+>Код есть документация.
+>Появляется Единственная точка входа в процесс валидации.
+
+Реализация Тактического Паттерна **DDD: ValueObject**
+> ValueObject - Основной кирпичик описания модели - это важно понимать.
+> Помогает строить всегда валидную доменную модель!
+
+Пример SubscriberId:
+````
+data class SubscriberId
+private constructor(
+    override val value: String
+) : ValueObject<String> {
+    companion object {
+        fun emerge(subscriberId: String)
+                : Result<SubscriberId> =
+            when (isStringConsists6Digits(subscriberId)) {
+                true -> Result.success(SubscriberId(subscriberId))
+                else -> Result.failure(IllegalArgumentException("Subscriber Id consists of numbers maximum length 6"))
+            }
+
+        private val isStringConsist6Digits = "^\\d{1,6}\$".toRegex()
+
+        private fun isStringConsists6Digits(value: String) =
+            isStringConsist6Digits.matches(value)
+    }
+} 
+````
+Представили Тест на эту логику?
+````kotlin
+internal class SubscriberIdTest {
+  @Test
+  fun success() {
+    val sut = SubscriberId.emerge("888")
+    assertThat(sut.isSuccess).isTrue
+    assertThat(sut.getOrThrow().value).isEqualTo("888")
+  }
+
+  @Test
+  fun successWith6Digits() {
+    val sut = SubscriberId.emerge("123456")
+    assertThat(sut.isSuccess).isTrue
+    assertThat(sut.getOrThrow().value).isEqualTo("123456")
+  }
+
+  @Test
+  fun failWithWrongFormat() {
+    val sut = SubscriberId.emerge("L124S")
+    assertThat(sut.isFailure).isTrue
+    assertThat(sut.exceptionOrNull()!!.message).isEqualTo("Subscriber Id consists of numbers maximum length 6")
+  }
+
+}
+````
+
+#### Всегда валидная Последовательность алгебраических типов
+
+> DDD made functional
+
+Для описания Доменных классов в функциональном стиле помогает  
+описать бизнес-процесс в цепочке перетекающих классов друг в друга:  
+
+Постановка:  
+````
+| запросить данные для обновления абонента
+| запросить текущие данные абонента в системе
+| сформировать запрос на обновление абонента
+| отправить запрос обновления данных абонента
+````
+Последовательность алгебраических типов:  
+
+```
+| Непроверенный Запрос на Обновление | UnvalidatedDataUpdateRequest
+| Проверенный Запрос На Обновление   | ValidatedDataUpdateRequest
+| Запрос Абонента В Системе          | SubscriberDataUpdate
+| Запрос На Обновление Абонента      | SubscriberUpdateRequest
+| Результат Обновления Абонента      | SubscriberDataUpdateResponse
+```
+
+Пример плохого возможно Невалидного Доменного класса:
+````
+   class SubscriberDataUpdate(
+           val subscriber: Subscriber?, 
+           val dataUpdate: SubscriberDataUpdate
+     ) {
+           fun isValid() = null != subscriber
+
+           fun isUpdateRequired() = 
+              subscriber.mobileRegionId != dataUpdate.mobileRegionId 
+   }
+````
+Всегда валидная Доменная модель возникает только благодаря фабричным методам,\
+или не возникает вовсе:
+````kotlin   
+data class SubscriberDataUpdate private constructor(
+    private val dataUpdate: DataUpdate,
+    private val subscriber: Subscriber
+) {
+    fun prepareUpdateRequest(): Result<SubscriberUpdateRequest> = {..}
+
+    private fun failNoUpdateRequired(): Result<SubscriberUpdateRequest> = {..}
+
+    private fun createSubscriberUpdateRequest()
+            : Result<SubscriberUpdateRequest> = {..}
+        
+    private fun isUpdateRequired(): Boolean = {..}
+    
+    companion object {
+        fun emerge(
+            dataUpdate: DataUpdate,
+            subscriberResult: Result<Subscriber>
+        ): Result<SubscriberDataUpdate> =
+            subscriberResult.map {
+                SubscriberDataUpdate(dataUpdate, it)
+            }
+    }
+    
+}
+```` 
+#### Onion Architecture : Изолируем доменную модель от интеграций
+
+[Onion Architecture](http://jeffreypalermo.com/blog/the-onion-architecture-part-1/)
+
+Уровень сервисов используем как простой поток **dump pipe**
+
+Как это помогает в **тестописи**?
+
+![Alt text](images/DomainModel.jpg)
+
+Постановка:
+````
+| запросить данные для обновления абонента
+| запросить текущие данные абонента в системе
+| сформировать запрос на обновление абонента
+| отправить запрос обновления данных абонента
+````
+Пример сервиса с Сильной Доменной Моделью:
+````
+    fun dataUpdateProcess(unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest)
             : Mono<Result<SubscriberDataUpdateResponse>> =
         Mono.just(ValidatedDataUpdateRequest.emerge(unvalidatedUpdateRequest))
             .flatMap { findDataWithUpdates(it) }
             .flatMap { findSubscriberForUpdate(it) }
             .flatMap { prepareSubscriberUpdateRequest(it) }
-            .flatMap { updateSubscriber(it) }            
-    ```` 
-  - [x] не используй void в функциях
-  - [x] честные и чистые функции
+            .flatMap { updateSubscriber(it) }
 
---- 
-- [YAGNI + KISS как самые ценные принципы проектирования](https://enterprisecraftsmanship.com/posts/most-valuable-software-development-principles/)
+     private fun findSubscriberForUpdate(dataUpdate: Result<DataUpdate>)
+            : Mono<Result<SubscriberDataUpdate>> =
+        dataUpdate.fold(
+            onSuccess = { subscriberRequest -> findSubscriberByRest(subscriberRequest) },
+            onFailure = { error -> Mono.just(Result.failure(error)) }
+        )
+````
+
+---
+### YAGNI + KISS самые ценные принципы 
+[YAGNI + KISS как самые ценные принципы проектирования](https://enterprisecraftsmanship.com/posts/most-valuable-software-development-principles/)
   
   YAGNI — "You aren’t gonna need it"\
   KISS  — "Keep it simple, stupid" or "Keep it short and simple"
-  - [x] Улучшай структуру кода и уменьшай количество слоев\
-        Простая структура уменьшает когнитивную нагрузку, упрощает работу с кодом.
-    ````
-      ddd.toolkit
-        controller
-        domain
-          common
-          subscriberDataUpdate
-        utils
+- [x] проектируем только то, что нужно в моменте : может вообще не взлететь
+- [x] Улучшай структуру кода и уменьшай количество слоев\
+      Простая структура уменьшает когнитивную нагрузку, упрощает работу с кодом.
+````
+    ddd.toolkit
+      controller
+      domain
+        common
+        subscriberDataUpdate
+      utils
     
-    ````
-  - [x] проектируем только то, что нужно в моменте по бизнесу
-  - [x] никаких универсальных надстроек и шаблонов. Домен уникален сам по себе\
-        The simpler your solution is, the better you are as a software developer.
+````
+- [x] никаких универсальных надстроек и шаблонов. Домен уникален сам по себе\
+      The simpler your solution is, the better you are as a software developer.
   
-       ````
-           ddd.toolkit
-             controller
-             domain
-               common
-               subscriberDataUpdate
-                  DataUpdate
-                  Subscriber
-                  SubscriberDataUpdate
-                  SubscriberDataUpdateRequest
-                  SubscriberDataUpdateResponse
-                  SubscriberDataUpdateService
-                  SubscriberGateway
-                  SubscriberRestClient
-             utils
+````
+         ddd.toolkit
+           controller
+           domain
+             common
+             subscriberDataUpdate
+                DataUpdate
+                Subscriber
+                SubscriberDataUpdate
+                SubscriberDataUpdateRequest
+                SubscriberDataUpdateResponse
+                SubscriberDataUpdateService
+                SubscriberGateway
+                SubscriberRestClient
+           utils
          
-       ````
+````
 
 ---
-- **TDD** :: классическая школа, прагматичный набор тестов, сфокусированный на бизнес-логике
+### TDD :: классическая школа
+Прагматичный набор тестов, сфокусированный на бизнес-логике
 
-  TDD — "Test Driven Development"\
-  TDD — это надежный способ проектирования программных компонентов.\
-   Тесты помогают писать код лучше, если поставить задачу:
-   - [x] **Покрой юнит-тестами бизнес-логику, которая содержится в Доменной Модели**
-   - [x] тест - это документация - должен быть максимально простым:
-   ````
-   /**
-   4 аспекта хороших юнит-тестов:
-    1) защита от багов
-    2) устойчивость к рефакторингу
-    3) быстрая обратная связь
-    4) простота поддержки\
-   **/
-   @Test
-   fun success() {
-     //arrange
-     val foundDataUpdateDto = DataUpdateDto(
-         dataUpdateId = "101",
-         subscriberId = "909",
-         msisdn = "9999999999",
-         mobileRegionId = "9" //< изменение региона
-     )
-     val foundSubscriberDto = SubscriberDto(
-         subscriberId = "909",
-         msisdn = "9999999999",
-         mobileRegionId = "0" //< текущее состояние региона
-     )
-  
-     val dataUpdate = DataUpdate.emerge(
-         Result.success(foundDataUpdateDto)
-     ).getOrThrow()
-     val subscriberResult = Subscriber.emerge(
-         Result.success(foundSubscriberDto)
-     )   //^ моки не нужны
-          
-     //act
-     val sut = SubscriberDataUpdate.emerge(dataUpdate, subscriberResult)
-      // ^ SUT - sysyem under test
-          
-     //assert
-     assertThat(sut.isSuccess).isTrue
-     assertThat(sut.getOrThrow()
-                   .prepareUpdateRequest().isSuccess
-                )
-                .isTrue
-     val subscriberUpdateRequest = sut.getOrThrow()
-                                      .prepareUpdateRequest()
-                                      .getOrThrow();
-     assertThat(subscriberUpdateRequest.subscriberId).isEqualTo("909")
-     assertThat(subscriberUpdateRequest.msisdn).isEqualTo("9999999999")
-     assertThat(subscriberUpdateRequest.mobileRegionId).isEqualTo("9")
-   }
-   ````
-   Пример «трудного» теста:
-   ````
-   @Test
-   void getExistingIdsBetweenInAscByReportDt ()
-   {
-       changeDataRepository.getExistingIdsBetween(1L, 5L)
-           .concatMap(id -> changeDataRepository.findById(id))
-       .collectList()
-       .as(StepVerifier::create)
-       .consumeNextWith(changeData -> {
-           var reportDts = 
-               changeData
-                  .stream()
-                    .map(ChangeData::getReportDateTime)
-                    .collect(Collectors.toList());
-                    log.info("list report_dt: {}", reportDts);
-           assertThat(reportDts)
-             .isSortedAccordingTo(Comparator.naturalOrder());
-       })
-       .verifyComplete();
-   }
+TDD — "Test Driven Development"  
+TDD — это надежный способ проектирования программных компонентов.  
+Тесты помогают писать код лучше, если поставить задачу:  
+- [x] **Покрой юнит-тестами бизнес-логику, которая содержится в Доменной Модели**
+- [x] тест - это документация - должен быть максимально простым:
+ ````
+ /**
+ 4 аспекта хороших юнит-тестов:
+  1) защита от багов
+  2) устойчивость к рефакторингу
+  3) быстрая обратная связь
+  4) простота поддержки\
+ **/
+ @Test
+ fun success() {
+   //arrange
+   val foundDataUpdateDto = DataUpdateDto(
+       dataUpdateId = "101",
+       subscriberId = "909",
+       msisdn = "9999999999",
+       mobileRegionId = "9" //< изменение региона
+   )
+   val foundSubscriberDto = SubscriberDto(
+       subscriberId = "909",
+       msisdn = "9999999999",
+       mobileRegionId = "0" //< текущее состояние региона
+   )
 
-   ````
-   - [x] не использовать моки\
+   val dataUpdate = DataUpdate.emerge(
+       Result.success(foundDataUpdateDto)
+   ).getOrThrow()
+   val subscriberResult = Subscriber.emerge(
+       Result.success(foundSubscriberDto)
+   )   //^ моки не нужны
+        
+   //act
+   val sut = SubscriberDataUpdate.emerge(dataUpdate, subscriberResult)
+    // ^ SUT - sysyem under test
+        
+   //assert
+   assertThat(sut.isSuccess).isTrue
+   assertThat(sut.getOrThrow()
+                 .prepareUpdateRequest().isSuccess
+              )
+              .isTrue
+   val subscriberUpdateRequest = sut.getOrThrow()
+                                    .prepareUpdateRequest()
+                                    .getOrThrow();
+   assertThat(subscriberUpdateRequest.subscriberId).isEqualTo("909")
+   assertThat(subscriberUpdateRequest.msisdn).isEqualTo("9999999999")
+   assertThat(subscriberUpdateRequest.mobileRegionId).isEqualTo("9")
+ }
+````
+Пример «трудного» теста:
+````
+ @Test
+ void getExistingIdsBetweenInAscByReportDt ()
+ {
+     changeDataRepository.getExistingIdsBetween(1L, 5L)
+         .concatMap(id -> changeDataRepository.findById(id))
+     .collectList()
+     .as(StepVerifier::create)
+     .consumeNextWith(changeData -> {
+         var reportDts = 
+             changeData
+                .stream()
+                  .map(ChangeData::getReportDateTime)
+                  .collect(Collectors.toList());
+                  log.info("list report_dt: {}", reportDts);
+         assertThat(reportDts)
+           .isSortedAccordingTo(Comparator.naturalOrder());
+     })
+     .verifyComplete();
+ }
+
+````
+
+- [x] не использовать моки\
    Не думай о деталях реализации тестируемой системы,\
    думай о ее выходных данных.
-   - [x] тестировать выходные данные функции, если тестируем состояние - это компромисс.
-   - [x] минимизировать количество интеграционных тестов.
-   Один тест покрывает максимум возможных интеграций – максимум кода.\
-   Проверь «Счастливый путь» и до 3-х крайних точек с ошибками по процессу\
-   Как правило интеграционного теста одной ошибки хватает.\
-   Все ошибки тестируем юнит-тестами.\
-   Пример интеграционного теста:
-   ````
-   class SubscriberDataUpdateControllerTest(
-            @Autowired val webTestClient: WebTestClient
-   ) {
-   ...
-      
-   @Test
-   fun updateSuccess() {
-     webTestClient.put()
-         .uri("/api/v1/subscriber-data-updates")
-         .bodyValue(RestRequest(DataUpdateRequestDto(dataUpdateId = "101")))
-         .exchange()
-         .expectStatus().isOk
-         .expectBody()
-         .jsonPath("@.actualTimestamp").isNotEmpty
-         .jsonPath("@.status").isEqualTo("success")
-         .jsonPath("@.data.subscriberId").isEqualTo("999")
-         .jsonPath("@.data.dataUpdateId").isEqualTo("101")
-   }
-   }
-    
-   ````
-  При таком подходе к дизайну кода мы получаем из коробки качественное покрытие тестами,\
-  типы, которые описывают бизнес-логику. 
-  ![Alt text](images/test-coverage.png)
+- [x] тестировать выходные данные функции, если тестируем состояние - это компромисс.
+- [x] минимизировать количество интеграционных тестов.
+>Один тест покрывает максимум возможных интеграций – максимум кода.  
+Проверь «Счастливый путь» и до 3-х крайних точек с ошибками по процессу  
+Как правило интеграционного теста на одну ошибку хватает.  
+Все ошибки тестируем юнит-тестами.  
 
-## **Резюме:**
+Пример интеграционного теста:
+
+ ````
+ class SubscriberDataUpdateControllerTest(
+          @Autowired val webTestClient: WebTestClient
+ ) {
+ ...
+    
+ @Test
+ fun updateSuccess() {
+   webTestClient.put()
+       .uri("/api/v1/subscriber-data-updates")
+       .bodyValue(RestRequest(DataUpdateRequestDto(dataUpdateId = "101")))
+       .exchange()
+       .expectStatus().isOk
+       .expectBody()
+       .jsonPath("@.actualTimestamp").isNotEmpty
+       .jsonPath("@.status").isEqualTo("success")
+       .jsonPath("@.data.subscriberId").isEqualTo("999")
+       .jsonPath("@.data.dataUpdateId").isEqualTo("101")
+ }
+ }
+  
+ ````
+При таком подходе к дизайну кода мы получаем из коробки качественное покрытие тестами  
+
+![Alt text](images/test-coverage.png)
+
+Этот подход прекрасно вписывается в строительство пирамиды в команде:  
+
+![Alt text](images/test-pyramid.png)
+
+Что пишут QA в нашем случае и как это может помочь при рефакторинге?
+
+### Что дальше?
++ BDD
+
+## Вывод
+DDD is good and simple not simple!
 
 ### Рецепт:
 - Стань экспертом предметной области – разберись что и как должно работать на всех уровнях. Твой код – твоя ответственность. И помни: Качественная разработка – это результат качественной коммуникации.
@@ -526,7 +828,7 @@ https://t.me/maxology
   на шлюзах поможет two track type Result<Data, Error> и canExecute/execute.
 
 По рецепту возможно получить в качестве результата:
-- Простую, строгую структуру приложения - хороший дизайн кода в функциональным стиле
+- Простую и строгую структуру приложения - хороший дизайн кода в функциональным стиле
 - Код будет оснащен эффективным набором простых юнит-тестов:
   - которые сфокусированы на изолированной от интеграций бизнес-логике
   - Количество интеграционных тестов сведено к достаточному минимуму
@@ -545,8 +847,10 @@ https://t.me/maxology
 **This is The Way** © The Mandalorian
 
 ---
-Оставьте, пожалуйста, отзыв о выступлении!\
-https://t.ly/KGRL
+Оставьте, пожалуйста, отзыв о выступлении!
+
+https://t.ly/uf7j  
+
 
 ![Alt text](images/feedback.png "Feedback")
 
@@ -567,8 +871,9 @@ https://t.ly/KGRL
 
 ## Полезные ссылки
 - [x] [There is no I in Software Craftsmanship](https://betterprogramming.pub/there-is-no-i-in-software-development-4ec478631d6b)
-- [x] [Domain Modeling Made Functional книга](https://pragprog.com/titles/swdddf/domain-modeling-made-functional/)
-- [x] [Принципы юнит-тестирования книга](https://www.piter.com/product_by_id/212580594)
+- [x] [книга: Domain Modeling Made Functional](https://pragprog.com/titles/swdddf/domain-modeling-made-functional/)
+- [x] [книга: Принципы юнит-тестирования](https://www.piter.com/product_by_id/212580594)
+- [x] [книга: Domain-Driven DesignThe First 15 Years](https://leanpub.com/ddd_first_15_years/)
 - [x] [Video :: Scott Wlaschin - Railway Oriented Programming — error handling in functional languages](https://vimeo.com/97344498)
 - [x] [Видео :: Владимир Хориков — Domain-driven design: Cамое важное](https://youtu.be/JOy_SNK3qj4)
 - [x] [Vladimir Khorikov, Refactoring from Anemic Domain Model Towards a Rich One](https://www.pluralsight.com/courses/refactoring-anemic-domain-model)
@@ -578,9 +883,9 @@ https://t.ly/KGRL
 - [x] [canExecute/Execute](https://enterprisecraftsmanship.com/posts/validation-and-ddd/)
 - [x] [7 Software Development Principles That Should Be Embraced Daily](https://betterprogramming.pub/7-software-development-principles-that-should-be-embraced-daily-c26a94ec4ecc)
 - [x] [primitive obsession](https://enterprisecraftsmanship.com/posts/functional-c-primitive-obsession/)
-- [ ] http://dddcommunity.org/
-- [ ] http://eventstorming.com/
-- [ ] [Visualising software architecture](http://static.codingthearchitecture.com/c4.pdf)
+- [x] http://dddcommunity.org/
+- [x] http://eventstorming.com/
+- [x] [Visualising software architecture](http://static.codingthearchitecture.com/c4.pdf)
 - [x] https://www.martinfowler.com/bliki/MicroservicePremium.html
 - [x] http://www.enterpriseintegrationpatterns.com/patterns/messaging/MessageRouter.html
 - [x] https://www.slideshare.net/BerndRuecker/long-running-processes-in-ddd
