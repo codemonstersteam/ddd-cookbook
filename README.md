@@ -84,7 +84,13 @@ DDD 20 years
 > 
 > Highly productive teams grow their knowledge consciously, practicing continuous learning (Kerievsky 2003). For developers, this means improving technical knowledge, along with general domain-modeling skills (such as those in this book). But it also includes serious learning about the specific domain they are working in.
 > 
-    
+
+> Dan North:
+> «Невежество — это самое большое препятствие на пути к пропускной способности»
+ 
+> Prof. David West:
+> «The amazing thing about DDD was not the patterns or the practices, it was the quiet way it put the lie to a fundamental tenets of software engineering: the lie that programmers did not need to have an understanding of domains, that everything they needed to know was a set of requirements that the code must satisfy.»
+
 - [x] Разработчик - эксперт предметной области
 - [x] Общаемся с экспертами и проектируем решения совместно | Event Storming на свой лад
 - [x] **Ubiquity Language** - Обыденный язык - Единый язык в документации, коде, в общении с экспертами домена. Наблюдательность.
@@ -876,6 +882,7 @@ https://t.ly/uf7j
 - [x] [книга: Domain-Driven DesignThe First 15 Years](https://leanpub.com/ddd_first_15_years/)
 - [x] [Video :: Scott Wlaschin - Railway Oriented Programming — error handling in functional languages](https://vimeo.com/97344498)
 - [x] [Видео :: Владимир Хориков — Domain-driven design: Cамое важное](https://youtu.be/JOy_SNK3qj4)
+- [x] [Видео :: Ахтям Сакаев — DDDamn good!](https://youtu.be/JUrMIBR8Tmk)
 - [x] [Vladimir Khorikov, Refactoring from Anemic Domain Model Towards a Rich One](https://www.pluralsight.com/courses/refactoring-anemic-domain-model)
 - [x] [Vladimir Khorikov, Applying Functional Principles : pluralsight](https://www.pluralsight.com/courses/csharp-applying-functional-principles)
 - [x] [OCP vs YAGNI](https://enterprisecraftsmanship.com/posts/ocp-vs-yagni/)
