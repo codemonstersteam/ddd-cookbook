@@ -222,7 +222,7 @@ fun dataUpdateProcess(unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest)
 - [x] **Сильная Доменная модель | Rich Domain Model**
 - [x] Type Driven Development другое TDD
 - [x] Onion Architecture
-- [x] Can Execute/Execute
+- [x] fold || Can Execute/Execute
 - [x] TDD: Классическая школа Тестирования и совсем немного лондонского вайба
 
 Соберем все это в чистый код в функциональной парадигме?
@@ -619,7 +619,25 @@ data class SubscriberDataUpdate private constructor(
     }
     
 }
-```` 
+````
+
+- Остановись на валидации Запроса
+> | Непроверенный Запрос на Обновление | UnvalidatedDataUpdateRequest
+
+ 
+> DTO -> UnvalidatedDataUpdateRequest(a: String, b:String, c: String, d: String)
+> 
+> Result.zip(ValueObject<A>, ValueObject<B>, ValueObject<C>, ValueObject<D>).map{..}
+
+````kotlin
+fun <A : Any, B : Any, C : Any, D : Any> Result.Companion.zip(a: Result<A>, b: Result<B>, c: Result<C>, d: Result<D>)
+: Result<Tuple4<A, B, C, D>> =
+    if (sequenceOf(a, b, c, d).none { it.isFailure })
+        Result.success(Tuples.of(a.getOrThrow(), b.getOrThrow(), c.getOrThrow(), d.getOrThrow()))
+    else
+        Result.failure(sequenceOf(a, b, c, d).first { it.isFailure }.exceptionOrNull()!!)
+````
+
 #### Onion Architecture : Изолируем доменную модель от интеграций
 
 [Onion Architecture](http://jeffreypalermo.com/blog/the-onion-architecture-part-1/)
@@ -825,8 +843,18 @@ TDD — это надежный способ проектирования про
 ## Вывод
 DDD is good and simple not simple!
 
+## Обсудим сложности
+- принять лидерство 
+> На раннем этапе направлять команду нужно
+- не говорить про DDD
+- зависит от организации
+> не работает при доминирующем разрабе || аналитике со спусканием задач
+
 ### Рецепт:
-- Стань экспертом предметной области – разберись что и как должно работать на всех уровнях. Твой код – твоя ответственность. И помни: Качественная разработка – это результат качественной коммуникации.
+- Стань экспертом предметной области – разберись что и как должно работать на всех уровнях.  
+Твой код – твоя ответственность.  
+И помни:  
+Качественная разработка – это результат качественной коммуникации.  
 - Опиши в функциональном стиле бизнес-процесс с доменными классами
 - Реализуй в функциональном стиле всегда валидную Богатую Доменную Модель без примитивов
 - Покрой юнит-тестами бизнес-логику, которая содержится в Доменной Модели
