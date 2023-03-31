@@ -908,6 +908,7 @@ https://t.ly/uf7j
 - [x] [книга: Domain Modeling Made Functional](https://pragprog.com/titles/swdddf/domain-modeling-made-functional/)
 - [x] [книга: Принципы юнит-тестирования](https://www.piter.com/product_by_id/212580594)
 - [x] [книга: Domain-Driven DesignThe First 15 Years](https://leanpub.com/ddd_first_15_years/)
+- [x] [Video :: Scott Wlaschin — Pipeline-oriented programming](https://www.youtube.com/watch?v=sfYA0HCWgqQ)
 - [x] [Video :: Scott Wlaschin - Railway Oriented Programming — error handling in functional languages](https://vimeo.com/97344498)
 - [x] [Видео :: Владимир Хориков — Domain-driven design: Cамое важное](https://youtu.be/JOy_SNK3qj4)
 - [x] [Видео :: Ахтям Сакаев — DDDamn good!](https://youtu.be/JUrMIBR8Tmk)
