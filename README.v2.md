@@ -99,8 +99,6 @@ Dan North:
 Prof. David West:  
 > «The amazing thing about DDD was not the patterns or the practices, it was the quiet way it put the lie to a fundamental tenets of software engineering: the lie that programmers did not need to have an understanding of domains, that everything they needed to know was a set of requirements that the code must satisfy.»
 
-DevOps [atlassian](https://www.atlassian.com/devops/what-is-devops/devops-culture):  
->DevOps is an organizational culture shift that emphasizes continuous learning and continuous improvement, especially through team autonomy, fast feedback, high empathy and trust, and cross-team collaboration.
 - [x] Разработчик - эксперт предметной области
 - [x] Общаемся с экспертами и проектируем решения командой | Event Storming на свой лад
 - [x] Прозрачность процессов vs Job Safety
