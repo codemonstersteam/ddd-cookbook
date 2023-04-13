@@ -223,9 +223,12 @@ fun dataUpdateProcess(unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest)
 
 - P.O.P - [Pipeline Oriented Programming](https://www.youtube.com/watch?v=sfYA0HCWgqQ)
 
+[Data Flow Programming](https://en.wikipedia.org/wiki/Dataflow_programming)
+
 Scott Wlaschin:
   >Passing data through a pipeline of transformations
   >is an alternative approach to classic OOP
+  
   
 **Бенефиты**:
   - код есть документация - просто читать не только программисту
@@ -275,7 +278,11 @@ ___
 >Исключения как инструмент мешают в восприятии бизнес-процесса, как **непрерывного потока**.
 
 
-Мы используем [Railway Oriented Programming - error handling in functional languages](https://fsharpforfunandprofit.com/rop/) как паттерн при работе с ошибками.  
+Мы используем [Railway Oriented Programming - error handling in functional languages](https://fsharpforfunandprofit.com/rop/) как паттерн при работе с ошибками.
+
+> Scott Wlaschin:
+> To create a robust real world application you must deal with validation, logging, network and service errors, and other annoyances.
+> So, how do you handle all this in a clean functional way?
 
 ![Alt text](images/ROP.jpg "R.O.P")
 
@@ -311,6 +318,11 @@ fun dataUpdateProcess(unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest)
 ### True pure and honest function style    
 функция всегда возвращает ответ: **Two Track Type : Result<Data, Error>**  
 если она может «сломаться» в процессе исполнения.  
+
+> Result это тип Union. (Sum Type, Discriminated Union, Either)
+> Суть в рецепте и упрощении подхода.
+
+[Relationship to the Either monad and Kleisli composition](https://fsharpforfunandprofit.com/rop/#relationship-to-the-either-monad-and-kleisli-composition)
 
 Пример сервиса в стиле R.O.P.:  
 
@@ -698,6 +710,7 @@ fun <A : Any, B : Any, C : Any, D : Any> Result.Companion.zip(a: Result<A>, b: R
 ````
 
 ---
+
 ## YAGNI + KISS самые ценные принципы 
 [YAGNI + KISS как самые ценные принципы проектирования](https://enterprisecraftsmanship.com/posts/most-valuable-software-development-principles/)
   
@@ -705,8 +718,13 @@ fun <A : Any, B : Any, C : Any, D : Any> Result.Companion.zip(a: Result<A>, b: R
   KISS  — "Keep it simple, stupid" or "Keep it short and simple"
 - [x] проектируем только то, что нужно в моменте : может вообще не взлететь
 - [x] Улучшай структуру кода и уменьшай количество слоев\
-      Простая структура уменьшает когнитивную нагрузку, упрощает работу с кодом.
-````
+      Простая структура уменьшает когнитивную нагрузку, упрощает работу с кодом.  
+
+
+[Vertical Slice Architecture](https://jimmybogard.com/vertical-slice-architecture/)
+
+
+```
     ddd.toolkit
       controller
       domain
@@ -714,11 +732,11 @@ fun <A : Any, B : Any, C : Any, D : Any> Result.Companion.zip(a: Result<A>, b: R
         subscriberDataUpdate
       utils
     
-````
+```
 - [x] никаких универсальных надстроек и шаблонов. Домен уникален сам по себе\
       The simpler your solution is, the better you are as a software developer.
   
-````
+```
          ddd.toolkit
            controller
            domain
@@ -734,7 +752,7 @@ fun <A : Any, B : Any, C : Any, D : Any> Result.Companion.zip(a: Result<A>, b: R
                 SubscriberRestClient
            utils
          
-````
+```
 
 ---
 ## TDD :: классическая школа
@@ -745,7 +763,8 @@ TDD — это надежный способ проектирования про
 Тесты помогают писать код лучше, если поставить задачу:  
 - [x] **Покрой юнит-тестами бизнес-логику, которая содержится в Доменной Модели**
 - [x] тест - это документация - должен быть максимально простым:
- ````
+
+```kotlin
  /**
  4 аспекта хороших юнит-тестов:
   1) защита от багов
@@ -792,44 +811,24 @@ TDD — это надежный способ проектирования про
    assertThat(subscriberUpdateRequest.msisdn).isEqualTo("9999999999")
    assertThat(subscriberUpdateRequest.mobileRegionId).isEqualTo("9")
  }
-````
-Пример «трудного» теста:
-````
- @Test
- void getExistingIdsBetweenInAscByReportDt ()
- {
-     changeDataRepository.getExistingIdsBetween(1L, 5L)
-         .concatMap(id -> changeDataRepository.findById(id))
-     .collectList()
-     .as(StepVerifier::create)
-     .consumeNextWith(changeData -> {
-         var reportDts = 
-             changeData
-                .stream()
-                  .map(ChangeData::getReportDateTime)
-                  .collect(Collectors.toList());
-                  log.info("list report_dt: {}", reportDts);
-         assertThat(reportDts)
-           .isSortedAccordingTo(Comparator.naturalOrder());
-     })
-     .verifyComplete();
- }
 
-````
-
+```
+### Вывод:
 - [x] не использовать моки\
    Не думай о деталях реализации тестируемой системы,\
    думай о ее выходных данных.
 - [x] тестировать выходные данные функции, если тестируем состояние - это компромисс.
-- [x] минимизировать количество интеграционных тестов.
->Один тест покрывает максимум возможных интеграций – максимум кода.  
-Проверь «Счастливый путь» и до 3-х крайних точек с ошибками по процессу  
-Как правило интеграционного теста на одну ошибку хватает.  
-Все ошибки тестируем юнит-тестами.  
+- [x] минимизировать количество интеграционных тестов.  
+
+> Один тест покрывает максимум возможных интеграций – максимум кода.  
+> Проверь «Счастливый путь» и до 3-х крайних точек с ошибками по процессу  
+> Как правило интеграционного теста на одну ошибку хватает.  
+> **Все ошибки тестируем юнит-тестами.**
 
 Пример интеграционного теста:
 
- ````
+ ```kotlin
+
  class SubscriberDataUpdateControllerTest(
           @Autowired val webTestClient: WebTestClient
  ) {
@@ -850,7 +849,7 @@ TDD — это надежный способ проектирования про
  }
  }
   
- ````
+ ```
 При таком подходе к дизайну кода мы получаем из коробки качественное покрытие тестами  
 
 ![Alt text](images/test-coverage.png)
@@ -942,11 +941,13 @@ https://t.ly/uf7j
 - [x] [canExecute/Execute](https://enterprisecraftsmanship.com/posts/validation-and-ddd/)
 - [x] [7 Software Development Principles That Should Be Embraced Daily](https://betterprogramming.pub/7-software-development-principles-that-should-be-embraced-daily-c26a94ec4ecc)
 - [x] [primitive obsession](https://enterprisecraftsmanship.com/posts/functional-c-primitive-obsession/)
+- [x] [Data Flow Programming](https://en.wikipedia.org/wiki/Dataflow_programming)
 - [x] http://dddcommunity.org/
 - [x] http://eventstorming.com/
 - [x] [Visualising software architecture](http://static.codingthearchitecture.com/c4.pdf)
+- [x] [Vertical Slice Architecture](https://jimmybogard.com/vertical-slice-architecture/)
 - [x] https://www.martinfowler.com/bliki/MicroservicePremium.html
-- [x] [AnemicDomainModel](https://martinfowler.com/bliki/AnemicDomainModel.html).
+- [x] [AnemicDomainModel](https://martinfowler.com/bliki/AnemicDomainModel.html)
 - [x] http://www.enterpriseintegrationpatterns.com/patterns/messaging/MessageRouter.html
 - [x] https://www.slideshare.net/BerndRuecker/long-running-processes-in-ddd
 - [x] https://martinfowler.com/eaaCatalog/dataTransferObject.html
@@ -971,3 +972,4 @@ https://t.ly/uf7j
 - [x] [pipeline oriented](https://fsharpforfunandprofit.com/pipeline/)
 - [x] [type-inference](https://fsharpforfunandprofit.com/posts/type-inference/)
 - [x] [Sealed Classes Instead of Exceptions in Kotlin](https://phauer.com/2019/sealed-classes-exceptions-kotlin/)
+- [x] [Against Railway-Oriented Programming](https://fsharpforfunandprofit.com/posts/against-railway-oriented-programming/)
