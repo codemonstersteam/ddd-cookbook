@@ -447,9 +447,8 @@ data class SubscriberDataUpdate private constructor(
 
 чем плохо слияние с интеграцией?
 
-- тем что тестирование бизнес-логики возможно только мокам
-- Чем опасны интеграционные методы подробно описано [в моей статье на Хабре](https://habr.com/ru/companies/gazprombank/articles/722620/)
-
+- тем что тестирование бизнес-логики возможно только с моками
+- Чем опасны интеграционные тесты описано [в моей статье на Хабре](https://habr.com/ru/companies/gazprombank/articles/722620/)
 - Слабая доменная модель - [**описание анти-паттерна сайте Martin Fowler**](https://martinfowler.com/bliki/AnemicDomainModel.html)
 
 ### Мы описали класс сильной доменной моделью, протестируем его?  
@@ -929,6 +928,7 @@ https://t.ly/uf7j
 
 ## Полезные ссылки
 - [x] [There is no I in Software Craftsmanship](https://betterprogramming.pub/there-is-no-i-in-software-development-4ec478631d6b)
+- [x] [Моя статья на Хабре про этот кукбук](https://habr.com/ru/companies/gazprombank/articles/722620/)
 - [x] [книга: Domain Modeling Made Functional](https://pragprog.com/titles/swdddf/domain-modeling-made-functional/)
 - [x] [книга: Принципы юнит-тестирования](https://www.piter.com/product_by_id/212580594)
 - [x] [книга: Domain-Driven DesignThe First 15 Years](https://leanpub.com/ddd_first_15_years/)
