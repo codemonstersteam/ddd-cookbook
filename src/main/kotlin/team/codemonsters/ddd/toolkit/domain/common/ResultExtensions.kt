@@ -23,6 +23,18 @@ inline fun <T> Result<T>.ensure(
     return this
 }
 
+inline fun <T> Result<T>.ensure(
+    predicate: (value: T) -> Boolean,
+    error: Throwable
+)
+        : Result<T> {
+    if (this.isFailure)
+        return this
+    if (!predicate(this.getOrThrow()))
+        return Result.failure(error)
+    return this
+}
+
 /**
  * Объединяет заданные Result<T> в новый Result
  * который будет успешен, когда все заданные Result на вход успешны,
