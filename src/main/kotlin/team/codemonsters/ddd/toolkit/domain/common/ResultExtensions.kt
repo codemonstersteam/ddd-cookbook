@@ -14,8 +14,7 @@ inline fun <R, T> Result<T>.flatMap(transform: (value: T) -> Result<R>): Result<
 inline fun <T> Result<T>.ensure(
     predicate: (value: T) -> Boolean,
     errorMessage: String
-)
-        : Result<T> {
+): Result<T> {
     if (this.isFailure)
         return this
     if (!predicate(this.getOrThrow()))
@@ -26,8 +25,7 @@ inline fun <T> Result<T>.ensure(
 inline fun <T> Result<T>.ensure(
     predicate: (value: T) -> Boolean,
     error: Throwable
-)
-        : Result<T> {
+): Result<T> {
     if (this.isFailure)
         return this
     if (!predicate(this.getOrThrow()))
@@ -56,13 +54,13 @@ inline fun <T> Result<T>.ensure(
 fun <A : Any, B : Any, C : Any, D : Any> Result.Companion.zip(a: Result<A>, b: Result<B>, c: Result<C>, d: Result<D>)
         : Result<Tuple4<A, B, C, D>> =
     if (sequenceOf(a, b, c, d).none { it.isFailure })
-        Result.success(Tuples.of(a.getOrThrow(), b.getOrThrow(), c.getOrThrow(), d.getOrThrow()))
+        success(Tuples.of(a.getOrThrow(), b.getOrThrow(), c.getOrThrow(), d.getOrThrow()))
     else
-        Result.failure(sequenceOf(a, b, c, d).first { it.isFailure }.exceptionOrNull()!!)
+        failure(sequenceOf(a, b, c, d).first { it.isFailure }.exceptionOrNull()!!)
 
 fun <A : Any, B : Any, C : Any> Result.Companion.zip(a: Result<A>, b: Result<B>, c: Result<C>)
         : Result<Tuple3<A, B, C>> =
     if (sequenceOf(a, b, c).none { it.isFailure })
-        Result.success(Tuples.of(a.getOrThrow(), b.getOrThrow(), c.getOrThrow()))
+        success(Tuples.of(a.getOrThrow(), b.getOrThrow(), c.getOrThrow()))
     else
-        Result.failure(sequenceOf(a, b, c).first { it.isFailure }.exceptionOrNull()!!)
+        failure(sequenceOf(a, b, c).first { it.isFailure }.exceptionOrNull()!!)
