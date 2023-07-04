@@ -143,7 +143,8 @@ DevOps [atlassian](https://www.atlassian.com/devops/what-is-devops/devops-cultur
 ![Alt text](images/jira.png)
 
 #### Описываем тикеты, сопроводительную документацию
- - Все документы по обновлению данных лежат рядом в одном месте под рукой
+ - Все документы по обновлению данных лежат рядом в одном месте под рукой.
+ - Нахрен поиски по типизировоанным разделам и когнетивную нагрузку при сборке в голове карты происходящего - облегчаем себе жизнь.
  - Документация к сервисам - в исходниках
  - Сопроводительную документацию собираем в одном разделе по бизнес-процессу
 
@@ -711,7 +712,6 @@ fun <A : Any, B : Any, C : Any, D : Any> Result.Companion.zip(a: Result<A>, b: R
 ````
 
 ---
-
 ## YAGNI + KISS самые ценные принципы 
 [YAGNI + KISS как самые ценные принципы проектирования](https://enterprisecraftsmanship.com/posts/most-valuable-software-development-principles/)
   
@@ -753,7 +753,7 @@ fun <A : Any, B : Any, C : Any, D : Any> Result.Companion.zip(a: Result<A>, b: R
                 SubscriberRestClient
            utils
          
-```
+````
 
 ---
 ## TDD :: классическая школа
@@ -850,7 +850,7 @@ TDD — это надежный способ проектирования про
  }
  }
   
- ```
+ ````
 При таком подходе к дизайну кода мы получаем из коробки качественное покрытие тестами  
 
 ![Alt text](images/test-coverage.png)
@@ -975,4 +975,3 @@ https://t.ly/uf7j
 - [x] [pipeline oriented](https://fsharpforfunandprofit.com/pipeline/)
 - [x] [type-inference](https://fsharpforfunandprofit.com/posts/type-inference/)
 - [x] [Sealed Classes Instead of Exceptions in Kotlin](https://phauer.com/2019/sealed-classes-exceptions-kotlin/)
-- [x] [Against Railway-Oriented Programming](https://fsharpforfunandprofit.com/posts/against-railway-oriented-programming/)
