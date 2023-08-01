@@ -2,7 +2,6 @@ package team.codemonsters.ddd.toolkit.domain.subscriberDataUpdate
 
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toMono
 import team.codemonsters.ddd.toolkit.domain.SubscriberDataUpdate
 import team.codemonsters.ddd.toolkit.domain.common.mapResult
 import team.codemonsters.ddd.toolkit.domain.common.pipe
@@ -21,7 +20,7 @@ class SubscriberDataUpdateService(val _subscribersClient: SubscriberGateway) {
      *      который будет покрывать максимум кода
      *      при тестировании можно сфокусироваться на тестировании сильной доменной модели - тестировании бизнес-логики
      */
-    fun dataUpdateProcess(unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest)
+    fun subscriberUpdate(unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest)
             : Mono<Result<SubscriberDataUpdateResponse>> =
         Mono.just(ValidatedDataUpdateRequest.emerge(unvalidatedUpdateRequest))
             .pipe { findDataForUpdate(it) }
