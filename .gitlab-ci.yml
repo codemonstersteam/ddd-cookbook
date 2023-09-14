@@ -1,3 +1,5 @@
+image: adoptopenjdk/openjdk11:jre-11.0.17_8-ubuntu
+
 stages:
   - build
   - test
