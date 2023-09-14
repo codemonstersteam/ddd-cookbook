@@ -6,10 +6,11 @@ job_build:
   stage: build
   script:
     - echo "Building the project"
-    - type git
-    - type docker
+    - ls
+    - ./gradlew build -x test
 
 job_test:
   stage: test
   script:
     - echo "Running tests"
+    - ./gradlew build test
