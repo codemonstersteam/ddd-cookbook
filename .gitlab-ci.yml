@@ -1,0 +1,15 @@
+stages:
+  - build
+  - test
+
+job_build:
+  stage: build
+  script:
+    - echo "Building the project"
+    - type git
+    - type docker
+
+job_test:
+  stage: test
+  script:
+    - echo "Running tests"
