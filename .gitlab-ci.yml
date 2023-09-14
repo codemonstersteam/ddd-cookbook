@@ -15,4 +15,4 @@ job_test:
   stage: test
   script:
     - echo "Running tests"
-    - ./gradlew build test
+    - ./gradlew :test
