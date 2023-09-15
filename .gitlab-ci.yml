@@ -1,18 +1,15 @@
-image: adoptopenjdk/openjdk11:jre-11.0.17_8-ubuntu
+image: gradle:jdk17
 
 stages:
   - build
   - test
 
-job_build:
+build:
   stage: build
   script:
-    - echo "Building the project"
-    - ls
     - ./gradlew build -x test
 
-job_test:
+test:
   stage: test
   script:
-    - echo "Running tests"
-    - ./gradlew :test
+    - ./gradlew test
