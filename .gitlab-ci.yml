@@ -1,13 +1,12 @@
 image: gradle:jdk17
 
 stages:
-  - build
   - test
 
-build:
-  stage: build
-  script:
-    - ./gradlew build -x test
+# build:
+#   stage: build
+#   script:
+#     - ./gradlew build -x test
 
 test:
   stage: test
