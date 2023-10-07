@@ -213,15 +213,11 @@ DevOps [atlassian](https://www.atlassian.com/devops/what-is-devops/devops-cultur
 
 Пример кода из сервиса в стиле P.O.P.:  
 ```kotlin
-@Service
-
-fun dataUpdateProcess(unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest)
-: Mono<Result<SubscriberDataUpdateResponse>> =
-    Mono.just(ValidatedDataUpdateRequest.emerge(unvalidatedUpdateRequest))
-    .flatMap { findDataWithUpdates(it) }
-    .flatMap { findSubscriberForUpdate(it) }
-    .flatMap { prepareSubscriberUpdateRequest(it) }
-    .flatMap { updateSubscriber(it) }
+    validateRequest(unvalidatedUpdateRequest)
+    .pipe { requestSubscriberUpdate(it) }
+    .pipe { requestCurrentSubscriber(it) }
+    .mapResult { it.prepareUpdateRequest() }
+    .pipe { updateSubscriber(it) }
 ```
 
 - P.O.P - [Pipeline Oriented Programming](https://www.youtube.com/watch?v=sfYA0HCWgqQ)
@@ -300,15 +296,13 @@ ___
 
 Пример кода из сервиса в стиле R.O.P.:  
 ```kotlin
-@Service
-
-fun dataUpdateProcess(unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest)
+fun subscriberUpdate(unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest)
 : Mono<Result<SubscriberDataUpdateResponse>> =
-    Mono.just(ValidatedDataUpdateRequest.emerge(unvalidatedUpdateRequest))
-    .flatMap { findDataWithUpdates(it) }
-    .flatMap { findSubscriberForUpdate(it) }
-    .flatMap { prepareSubscriberUpdateRequest(it) }
-    .flatMap { updateSubscriber(it) }
+    validateRequest(unvalidatedUpdateRequest)
+        .pipe { requestSubscriberUpdate(it) }
+        .pipe { requestCurrentSubscriber(it) }
+        .mapResult { it.prepareUpdateRequest() }
+        .pipe { updateSubscriber(it) }
 ```
 
 ## Решение R.O.P.
@@ -330,29 +324,19 @@ fun dataUpdateProcess(unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest)
 Пример сервиса в стиле R.O.P.:  
 
 ````kotlin
-   fun dataUpdateProcess(
-    unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest
-   ): Mono<Result<SubscriberDataUpdateResponse>> =
-    Mono.just(ValidatedDataUpdateRequest.emerge(unvalidatedUpdateRequest))
-        .flatMap { findDataWithUpdates(it) }
-        .flatMap { findSubscriberForUpdate(it) }
-        .flatMap { prepareSubscriberUpdateRequest(it) }
-        .flatMap { updateSubscriber(it) }          
+ fun subscriberUpdate(unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest)
+        : Mono<Result<SubscriberDataUpdateResponse>> =
+    validateRequest(unvalidatedUpdateRequest)
+        .pipe { requestSubscriberUpdate(it) }
+        .pipe { requestCurrentSubscriber(it) }
+        .mapResult { it.prepareUpdateRequest() }
+        .pipe { updateSubscriber(it) }        
        ...
        ...
-
-    // > Result IN > Result OUT
-    private fun prepareSubscriberUpdateRequest(
-        subscriberDataUpdate: Result<SubscriberDataUpdate>
-    ): Mono<Result<SubscriberUpdateRequest>> =
-    subscriberDataUpdate.fold(
-        onSuccess = { it.prepareUpdateRequest() },
-                      //^ Бизнес-логика в Доменном классе
-        onFailure = { Result.failure(it) }
-                     //^ ошибку пробрасываем далее по пайпу процесса
-    ).toMono()    
 
 ````
+![requestCurrentSubscriber.png](images/requestCurrentSubscriber.png)
+
 > Fold In functional programming, fold (also termed reduce, accumulate, aggregate, compress, or inject)
 
 > Can Execute/ Execute pattern  
@@ -368,19 +352,7 @@ private fun prepareSubscriberUpdateRequest(
   }      
 } 
 ````
-> Filter Style in pipe
-> 
 
-````kotlin
-private fun prepareSubscriberUpdateRequest(
-    subscriberDataUpdate: Result<SubscriberDataUpdate>
-): Mono<Result<SubscriberUpdateRequest>> =
-     Mono.just(subscriberDataUpdate)
-         .filter{it.isSuccess}
-         .map {it.getOrThrow()}
-         .map{it.prepareUpdateRequest()}
-         .switchIfEmpty(throwErrorFronInput(it))
-````
 #### Вывод:
 - [x] Не используем исключения в качестве control flow
   >С two track type **Result**<Data, Error> обработка ошибок становится гражданином первого класса нашей модели
@@ -689,26 +661,22 @@ fun <A : Any, B : Any, C : Any, D : Any> Result.Companion.zip(a: Result<A>, b: R
 Пример сервиса с Сильной Доменной Моделью:
 
 ````kotlin
-    fun dataUpdateProcess(unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest)
-            : Mono<Result<SubscriberDataUpdateResponse>> =
-        Mono.just(ValidatedDataUpdateRequest.emerge(unvalidatedUpdateRequest))
-            .flatMap { findDataWithUpdates(it) }
-            .flatMap { findSubscriberForUpdate(it) }
-            .flatMap { prepareSubscriberUpdateRequest(it) }
-            .flatMap { updateSubscriber(it) }
+    fun subscriberUpdate(
+    unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest
+    ): Mono<Result<SubscriberDataUpdateResponse>> =
+    validateRequest(unvalidatedUpdateRequest)
+        .pipe { requestSubscriberUpdate(it) }
+        .pipe { requestCurrentSubscriber(it) }
+        .mapResult { it.prepareUpdateRequest() }
+        .pipe { updateSubscriber(it) }
 
-     private fun findSubscriberForUpdate(dataUpdate: Result<DataUpdate>)
-            : Mono<Result<SubscriberDataUpdate>> =
-        dataUpdate.fold(
-            onSuccess = { subscriberRequest -> findSubscriberByRest(subscriberRequest) },
-            onFailure = { error -> Mono.just(Result.failure(error)) }
-        )
+    private fun requestSubscriberUpdate(validRequest: ValidatedDataUpdateRequest) =
+        _subscribersClient.findDataUpdate(validRequest)
 
-     private fun findSubscriberByRest(dataUpdate: DataUpdate)
-        : Mono<Result<SubscriberDataUpdate>> =
+    private fun requestCurrentSubscriber(dataUpdate: DataUpdate)
+    : Mono<Result<SubscriberDataUpdate>> =
         _subscribersClient.findSubscriber(dataUpdate.subscriberId)
-        .map { SubscriberDataUpdate.emerge(dataUpdate, it) }
-
+            .map { SubscriberDataUpdate.emerge(dataUpdate, it) }
 ````
 
 ---
