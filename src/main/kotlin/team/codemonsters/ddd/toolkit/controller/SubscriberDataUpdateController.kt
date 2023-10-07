@@ -25,7 +25,7 @@ class SubscriberDataUpdateController(val _subscriberDataUpdate: SubscriberDataUp
     fun subscriberDataUpdate(
         @RequestBody subscriberDataUpdate: RestRequest<DataUpdateRequestDto>
     ): Mono<RestResponse<SubscriberDataUpdateResponseDto>> =
-        _subscriberDataUpdate.dataUpdateProcess(
+        _subscriberDataUpdate.subscriberUpdate(
             UnvalidatedDataUpdateRequest(subscriberDataUpdate.data.dataUpdateId)
         )
             .map { mapToDto(it) }

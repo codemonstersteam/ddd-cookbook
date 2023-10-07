@@ -2,7 +2,6 @@ package team.codemonsters.ddd.toolkit.domain.subscriberDataUpdate
 
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toMono
 import team.codemonsters.ddd.toolkit.domain.SubscriberDataUpdate
 import team.codemonsters.ddd.toolkit.domain.common.mapResult
 import team.codemonsters.ddd.toolkit.domain.common.pipe
@@ -21,18 +20,25 @@ class SubscriberDataUpdateService(val _subscribersClient: SubscriberGateway) {
      *      который будет покрывать максимум кода
      *      при тестировании можно сфокусироваться на тестировании сильной доменной модели - тестировании бизнес-логики
      */
-    fun dataUpdateProcess(unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest)
-            : Mono<Result<SubscriberDataUpdateResponse>> =
-        Mono.just(ValidatedDataUpdateRequest.emerge(unvalidatedUpdateRequest))
-            .pipe { findDataForUpdate(it) }
-            .pipe { findSubscriber(it) }
+    fun subscriberUpdate(
+        unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest
+    ): Mono<Result<SubscriberDataUpdateResponse>> =
+        validateRequest(unvalidatedUpdateRequest)
+            .pipe { requestSubscriberUpdate(it) }
+            .pipe { requestCurrentSubscriber(it) }
             .mapResult { it.prepareUpdateRequest() }
             .pipe { updateSubscriber(it) }
 
-    private fun findDataForUpdate(validRequest: ValidatedDataUpdateRequest) =
+    private fun validateRequest(unvalidatedUpdateRequest: UnvalidatedDataUpdateRequest) =
+        Mono.just(
+            ValidatedDataUpdateRequest
+                .emerge(unvalidatedUpdateRequest)
+        )
+
+    private fun requestSubscriberUpdate(validRequest: ValidatedDataUpdateRequest) =
         _subscribersClient.findDataUpdate(validRequest)
 
-    private fun findSubscriber(dataUpdate: DataUpdate)
+    private fun requestCurrentSubscriber(dataUpdate: DataUpdate)
             : Mono<Result<SubscriberDataUpdate>> =
         _subscribersClient.findSubscriber(dataUpdate.subscriberId)
             .map { SubscriberDataUpdate.emerge(dataUpdate, it) }
